@@ -1,2 +1,2 @@
 # iovBOX
-A embedded OBU makes vehicles programmable for everyone.
+An embedded OBU which makes vehicles programmable for everyone.
