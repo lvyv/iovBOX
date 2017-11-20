@@ -5,19 +5,40 @@
         <title>Socket.io</title>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="./jquery.min.js"></script>
+		<script src="./top.js"></script>
 		<script src="./io-client.js"></script>
 	</head>
  
     <body>
-        <h1>协议代理人</h1>
+ 
 		<div>
-			<span>目标主机</span><br/>
-			<span><input type="text" id="websocket_svr" value="127.0.0.1:3352"/></span>
+			<span>目标主机-控制通道</span><br/>
+			<span>
+				<input type="text" id="websocket_svr" value="127.0.0.1:3352"/>
+				<input type="hidden" name="websocket_svr_proxy" value="127.0.0.1:3354" />
+			</span>
 		</div>
 		<div>
 			<span id="status">Connecting...</span><br/>
 			<span><input type="text" id="input" value='"login":"lvyu"'/></span>
-			<span  style="color:#0F8">"login":"lvyu" first</span>
+		</div>
+		<div>
+			<span  id="login_cmd" style="color:#0F8">"login":"lvyu"</span><br/>
+			<span id="host_cmd">"host":"192.168.75.130"</span><br/>
+			<span id="port_cmd">"port":"10220"</span><br/>
+		</div>
+		<div>
+			<span style="font-weight:bold">代理协议</span>
+		</div>
+		<div>
+			<span><button type="button" id="btnProxyCmd" >run_proxy</button></span>
+		</div>
+		<div>
+			<span><button type="button" id="btnProxy" >send proxy data</button></span>	
+		</div>
+		<div>
+			<span><textarea id="proxyData" rows="5" cols="50" >00 01 02 03 04 05 06 07   08 09 0a 0b 0c 0d 0e 0f</textarea></span>
+			<span><textarea id="proxyReply" rows="5" cols="50"></textarea></span>
 		</div>
 		<div id="content"></div>
     </body>

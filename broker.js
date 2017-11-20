@@ -18,15 +18,9 @@ var url  = require("url"),
 	fs=require("fs"),
 	http=require("http"),
 	path = require("path"),
-	ctl_handle = require("./protocol_handler.js");
-	
+	handlers = require("./protocol_handler.js");
+	_ET_GLOBAL = require("./top.js");
 var __dirname = "./iovBOX";
-var __ctl_chanel_in = 'ctl_in';
-
-
-var proto_ = process.argv[2];
-var host_ = process.argv[3];
-var port_ = parseInt(process.argv[4],10);
 
 function handle_request(req, res) {
     var pathname=__dirname + url.parse(req.url).pathname;
@@ -58,7 +52,6 @@ function handle_request(req, res) {
                 default:
                     res.writeHead(200, {"Content-Type": "application/octet-stream"});
             }
-
             fs.readFile(pathname,function (err,data){
                 res.end(data);
             });
@@ -69,14 +62,11 @@ function handle_request(req, res) {
     }); 
 }
 
-function get_file_content(filepath) {
-    return fs.readFileSync(filepath);
-}
-
 // Loading socket.io
 var server = http.createServer(handle_request);
 var io = require('socket.io').listen(server);
 server.listen(3352);
+server.listen(3354);
 
 //WebSocket连接监听
 io.on('connection', function (socket) {
@@ -87,77 +77,35 @@ io.on('connection', function (socket) {
 		token:0,
 		color:getColor()
 	};
-	
-	// 对stdin事件的监听
-	socket.on(__ctl_chanel_in,function(data) {
-		if((!client.name)&&(client.token===0)){
-			client.name = data.login;
-			client.token = data.time;//用客户的时间戳为token
-		}
-		client.time = data.time;
-		console.log(client);
+	// 对ctrl channel事件的监听
+	socket.on(_ET_GLOBAL.CTL_CHANNEL_IN, function(data) {
 		// 发送反馈
-		if(!ctl_handle(data, client, socket))
-			socket.disconnect(true);;		
+		if(!handlers.ctl_handle(data, client, socket))
+			socket.disconnect(true);	
+		console.log(client);
 	});
-	// 对message事件的监听
-	socket.on('message', function(msg){
-		var obj = {time:getTime(),color:client.color};
-
-		// 判断是不是第一次连接，以第一条消息作为用户名
-		if(!client.name){
-			client.name = msg;
-			obj['text']=client.name;
-			obj['author']='System';
-			obj['type']='welcome';
-			console.log(client.name + ' login');
-	
-			//返回欢迎语
-			socket.emit('system',obj);
-			//广播新用户已登陆
-			socket.broadcast.emit('system',obj);
-		}else{
-
-			//如果不是第一次的连接，正常的聊天消息
-			obj['text']=msg;
-			obj['author']=client.name;      
-			obj['type']='message';
-			console.log(client.name + ' say: ' + msg);
-
-			// 返回消息（可以省略）
-			socket.emit('message',obj);
-			// 广播向其他用户发消息
-			socket.broadcast.emit('message',obj);
-		}
+	//proxy Left channel event：proxy data forward
+	socket.on(_ET_GLOBAL.PROXY_LEFT_IN,function(data) {
+		if(!handlers.proxy_handle(data, client, socket))
+			socket.disconnect(true);
+		console.log(data);
 	});
-
     //监听出退事件
     socket.on('disconnect', function () {  
-      var obj = {
-        time:getTime(),
-        color:client.color,
-        author:'System',
-        text:client.name,
-        type:'disconnect'
-      };
-
-      // 广播用户已退出
-      //socket.broadcast.emit('system',obj);
       console.log(client.name + ' Disconnect.');
     });
-  
 });
 
 var getTime=function(){
   var date = new Date();
   return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
-}
+};
 
 var getColor=function(){
   var colors = ['aliceblue','antiquewhite','aqua','aquamarine','pink','red','green',
                 'orange','blue','blueviolet','brown','burlywood','cadetblue'];
   return colors[Math.round(Math.random() * 10000 % colors.length)];
-}
+};
 
 /**
  * 函数描述
@@ -188,11 +136,10 @@ function proxy_process(proto, host, port) {
 		//数据发送监听器
 		if(err) {throw err;}
 		});
-
 	//监听message事件，接收数据
 	client.on('message', function(msg){
 		console.log('收到了UDP服务端消息:', msg.toString());
 		client.close();
-		})
+		});
 }
 
