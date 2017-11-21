@@ -7,12 +7,51 @@ $(function () {
 	var proxyData = $('#proxyData');
 	var proxyReply = $('#proxyReply');
 	var content = $('#content');
-	var	btnProxy = $('#btnProxy');
+	var btnProxy = $('#btnProxy');
 	var btnProxyCmd = $('#btnProxyCmd');
+	var btnTestJS = $('#testJS');
 	var loginCmd = $('#login_cmd');
 	var hostCmd = $('#host_cmd');
 	var portCmd = $('#port_cmd');
-	
+	//十六进制字符串转字节数组
+	function HexStr2Bytes(str) {
+		var hexBytes = new Array();
+		var hexA = str.split(" ");
+		for(var i=0; i<hexA.length; i++) {
+			var v = parseInt(hexA[i],16);
+			hexBytes.push(v);
+		}
+		return hexBytes;
+	}
+	function Str2Bytes(str) {
+		var pos = 0;
+		var len = str.length;
+		if(len %2 != 0) {
+		   return null; 
+		}
+		len /= 2;
+		var hexA = new Array();
+		for(var i=0; i<len; i++) {
+		   var s = str.substr(pos, 2);
+		   var v = parseInt(s, 16);
+		   hexA.push(v);
+		   pos += 2;
+		}
+		return hexA;
+	}
+	//字节数组转十六进制字符串
+	function Bytes2Str(arr) {
+		var str = "";
+		for(var i=0; i<arr.length; i++) {
+		   var tmp = arr[i].toString(16);
+		   if(tmp.length == 1) {
+			   tmp = "0" + tmp;
+		   }
+		   tmp = tmp + " ";
+		   str += tmp;
+		}
+		return str;
+	}
 	var socket = io.connect(wssvr.val());
 	var socketProxy = io.connect(wssvr2.val());
 
@@ -53,6 +92,11 @@ $(function () {
 			console.log(error);
 		}
 	});
+	//testJS
+	btnTestJS.click(function() {
+		var hex = proxyData.val();
+		var typedArray = Str2Bytes(hex);
+	});
 	//代理启动和停止
 	btnProxyCmd.click(function(){
 		var cmd = document.getElementById("btnProxyCmd");
@@ -77,7 +121,8 @@ $(function () {
 	//代理数据发送
 	btnProxy.click(function() {
 		var pData = proxyData.val();
-		socketProxy.emit(_ET_GLOBAL.PROXY_LEFT_IN, pData);
+		var hexA = HexStr2Bytes(pData);
+		socketProxy.emit(_ET_GLOBAL.PROXY_LEFT_IN, hexA);
 	});
 	// 订阅svr_out事件
 	socket.on(_ET_GLOBAL.CTL_CHANNEL_OUT, function(json) { 
