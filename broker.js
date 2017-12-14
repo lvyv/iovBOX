@@ -64,9 +64,9 @@ function handle_request(req, res) {
 
 // Loading socket.io
 var server = http.createServer(handle_request);
-var io = require('socket.io').listen(server);
-server.listen(3352);
-server.listen(3354);
+var io = require('socket.io')(server);
+server.listen(1123);
+
 
 //WebSocket连接监听
 io.on('connection', function (socket) {
@@ -77,6 +77,8 @@ io.on('connection', function (socket) {
 		token:0,
 		color:getColor()
 	};
+	var local_port = socket.request.connection.localPort;
+	console.log(local_port);
 	// 对ctrl channel事件的监听
 	socket.on(_ET_GLOBAL.CTL_CHANNEL_IN, function(data) {
 		// 发送反馈
@@ -96,11 +98,6 @@ io.on('connection', function (socket) {
     });
 });
 
-var getTime=function(){
-  var date = new Date();
-  return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
-};
-
 var getColor=function(){
   var colors = ['aliceblue','antiquewhite','aqua','aquamarine','pink','red','green',
                 'orange','blue','blueviolet','brown','burlywood','cadetblue'];
@@ -114,7 +111,7 @@ var getColor=function(){
  * @param {string} option.url option项描述
  * @param {string=} option.method option项描述，可选参数
  */
-function proxy_process(proto, host, port) {
+/* function proxy_process(proto, host, port) {
 	var dgram = require('dgram');
 	var client = dgram.createSocket('udp4');
 	//udp发送数据
@@ -143,3 +140,4 @@ function proxy_process(proto, host, port) {
 		});
 }
 
+ */

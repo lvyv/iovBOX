@@ -1,7 +1,6 @@
 //jquery used.
 $(function () {
 	var wssvr = $('#websocket_svr');
-	var wssvr2 = $('#websocket_svr_proxy');
 	var input = $('#input');
 	var stat = $('#staus');
 	var proxyData = $('#proxyData');
@@ -16,7 +15,6 @@ $(function () {
 
 
 	var socket = io.connect(wssvr.val());
-	var socketProxy = io.connect(wssvr2.val());
 
 	//通过“回车”提交控制信道命令
 	input.keydown(function(e) {
@@ -81,20 +79,19 @@ $(function () {
 	btnProxy.click(function() {
 		var pData = proxyData.val();
 		var hexA = _ET_GLOBAL.HexStr2Bytes(pData);
-		//socketProxy.emit(_ET_GLOBAL.PROXY_LEFT_IN, hexA);
 		var buf = new Array(516);
 		buf[0] = 0x0;
 		buf[1] = 0x6;
 		buf[2] = 0;
 		buf[3] = 0;
 		buf[4] = 0x2E;
-		socketProxy.emit(_ET_GLOBAL.PROXY_LEFT_IN, buf);
+		socket.emit(_ET_GLOBAL.PROXY_LEFT_IN, buf);
 	});
 	//proxy UDP confirm
 	btnTestJS.click(function() {
 		var hexS = "00 04 00 01";
 		var hexA = _ET_GLOBAL.HexStr2Bytes(hexS);
-		socketProxy.emit(_ET_GLOBAL.PROXY_LEFT_IN, hexA);
+		socket.emit(_ET_GLOBAL.PROXY_LEFT_IN, hexA);
 	});
 	// 订阅svr_out事件
 	socket.on(_ET_GLOBAL.CTL_CHANNEL_OUT, function(json) { 
@@ -102,12 +99,11 @@ $(function () {
         content.prepend(p);
 	});			
 	//proxy Left channel event：proxy data reply
-	socketProxy.on(_ET_GLOBAL.PROXY_LEFT_OUT, function(data) {
+	socket.on(_ET_GLOBAL.PROXY_LEFT_OUT, function(data) {
 		str = _ET_GLOBAL.Bytes2HexStr(new Uint8Array(data));
 		$('#proxyReply').val(str);
 		var hexS = "00 04 00 01 00 01 02 03 04 05 06 07 08 09 0a 0b";
 		var hexA = _ET_GLOBAL.HexStr2Bytes(hexS);
-		//socketProxy.emit(_ET_GLOBAL.PROXY_LEFT_IN, hexA);
 	});
 	// 各种连接状态监听器
 	socket.on('disconnect',function() { 
