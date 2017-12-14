@@ -57,4 +57,27 @@ var root = typeof self == 'object' && self.self === self && self ||
   _ET_GLOBAL.now = Date.now || function() {
     return new Date().getTime();
   };
+  	//十六进制字符串转字节数组
+	_ET_GLOBAL.HexStr2Bytes = function HexStr2Bytes(str) {
+		var hexBytes = new Array();
+		var hexA = str.split(" ");
+		for(var i=0; i<hexA.length; i++) {
+			var v = parseInt(hexA[i],16);
+			hexBytes.push(v);
+		}
+		return hexBytes;
+	}
+	_ET_GLOBAL.Bytes2HexStr = function Bytes2HexStr(arr) {
+		var result = "";
+		for (i in arr) {
+			var str = arr[i].toString(16);
+			str = str.length == 0 ? "00" :
+              str.length == 1 ? "0" + str : 
+              str.length == 2 ? str :
+              str.substring(str.length-2, str.length);
+			 str = str + " ";
+			result += str;
+		}
+		return result;
+	}
 }());

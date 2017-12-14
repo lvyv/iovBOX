@@ -86,9 +86,9 @@ io.on('connection', function (socket) {
 	});
 	//proxy Left channel event：proxy data forward
 	socket.on(_ET_GLOBAL.PROXY_LEFT_IN,function(data) {
+		console.log("broker.js:" + data);
 		if(!handlers.proxy_handle(data, client, socket))
 			socket.disconnect(true);
-		console.log(data);
 	});
     //监听出退事件
     socket.on('disconnect', function () {  

@@ -122,28 +122,16 @@ module.exports.ctl_handle = ctl_handle;
  */
 var proxy_handle = function proxy_process(pkg, client, socket) {
 	try {
-		//var cmd = "list .";
-		// var buf = new Buffer(10);
-		// buf[0]=0;
-		// buf[1]=6;
-		// buf[2]=0;
-		// buf[3]=0;
-		// buf[4]=cmd.charCodeAt(5);
-		// buf[5]=0;//cmd.charCodeAt(1);
-		// buf[6]=0;//cmd.charCodeAt(2);
-		// buf[7]=0;//cmd.charCodeAt(3);
-		// buf[8]=0;//cmd.charCodeAt(4);
-		// buf[9]=0;//cmd.charCodeAt(5);
 		var buf = Buffer.from(pkg);
 		_udp_cli.send(buf, 0, buf.length, _ET_GLOBAL.PROXY_PORT, _ET_GLOBAL.PROXY_HOST,
 		  function(err, bytes) {
 				//数据发送监听器
 				if(err) {throw err;}
 			});
-			//监听message事件，接收数据
-		_udp_cli.on('message', function(msg) {
+			//监听message事件，接收数据(这个地方有bug)
+		_udp_cli.on('message', function(msg, rinfo) {
 				socket.emit(_ET_GLOBAL.PROXY_LEFT_OUT, msg);
-				console.log('收到了UDP服务端消息:', msg.toString());
+				console.log(socket.id + '收到了UDP服务端消息:', msg.toString());
 			});
 		return true;
 	} catch(error) {
