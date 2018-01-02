@@ -50,6 +50,11 @@
 	_ET_GLOBAL.PROXY_PORT = '';
 	_ET_GLOBAL.PROTO = '';
 
+	
+	_ET_GLOBAL.CHANNEL_MAP = new Map();
+	var abc = {};
+	abc.a = 1; abc.b = 2; abc.c = "hello";
+	_ET_GLOBAL.CHANNEL_MAP.set("K1",abc);
 	// Current version.
 	_ET_GLOBAL.VERSION = '0.0.1';
   

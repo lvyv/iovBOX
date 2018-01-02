@@ -75,10 +75,13 @@ io.on('connection', function (socket) {
 		name:false,
 		time:false,
 		token:0,
-		color:getColor()
+		color:getColor(),
+		l_sock:socket,
+		w_sock:null
 	};
 	var local_port = socket.request.connection.localPort;
-	console.log(local_port);
+	//console.log(local_port);
+	
 	// 对ctrl channel事件的监听
 	socket.on(_ET_GLOBAL.CTL_CHANNEL_IN, function(data) {
 		// 发送反馈
