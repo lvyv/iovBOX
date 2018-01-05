@@ -1,7 +1,6 @@
 //jquery used.
 $(function () {
 	var wssvr = $('#websocket_svr');
-	var wssvr2 = $('#websocket_svr_proxy');
 	var input = $('#input');
 	var stat = $('#staus');
 	var proxyData = $('#proxyData');
@@ -13,47 +12,9 @@ $(function () {
 	var loginCmd = $('#login_cmd');
 	var hostCmd = $('#host_cmd');
 	var portCmd = $('#port_cmd');
-	//十六进制字符串转字节数组
-	function HexStr2Bytes(str) {
-		var hexBytes = new Array();
-		var hexA = str.split(" ");
-		for(var i=0; i<hexA.length; i++) {
-			var v = parseInt(hexA[i],16);
-			hexBytes.push(v);
-		}
-		return hexBytes;
-	}
-	function Str2Bytes(str) {
-		var pos = 0;
-		var len = str.length;
-		if(len %2 != 0) {
-		   return null; 
-		}
-		len /= 2;
-		var hexA = new Array();
-		for(var i=0; i<len; i++) {
-		   var s = str.substr(pos, 2);
-		   var v = parseInt(s, 16);
-		   hexA.push(v);
-		   pos += 2;
-		}
-		return hexA;
-	}
-	//字节数组转十六进制字符串
-	function Bytes2Str(arr) {
-		var str = "";
-		for(var i=0; i<arr.length; i++) {
-		   var tmp = arr[i].toString(16);
-		   if(tmp.length == 1) {
-			   tmp = "0" + tmp;
-		   }
-		   tmp = tmp + " ";
-		   str += tmp;
-		}
-		return str;
-	}
+
+
 	var socket = io.connect(wssvr.val());
-	var socketProxy = io.connect(wssvr2.val());
 
 	//通过“回车”提交控制信道命令
 	input.keydown(function(e) {
@@ -92,11 +53,7 @@ $(function () {
 			console.log(error);
 		}
 	});
-	//testJS
-	btnTestJS.click(function() {
-		var hex = proxyData.val();
-		var typedArray = Str2Bytes(hex);
-	});
+
 	//代理启动和停止
 	btnProxyCmd.click(function(){
 		var cmd = document.getElementById("btnProxyCmd");
@@ -121,8 +78,20 @@ $(function () {
 	//代理数据发送
 	btnProxy.click(function() {
 		var pData = proxyData.val();
-		var hexA = HexStr2Bytes(pData);
-		socketProxy.emit(_ET_GLOBAL.PROXY_LEFT_IN, hexA);
+		var hexA = _ET_GLOBAL.HexStr2Bytes(pData);
+		var buf = new Array(516);
+		buf[0] = 0x0;
+		buf[1] = 0x6;
+		buf[2] = 0;
+		buf[3] = 0;
+		buf[4] = 0x2E;
+		socket.emit(_ET_GLOBAL.PROXY_LEFT_IN, buf);
+	});
+	//proxy UDP confirm
+	btnTestJS.click(function() {
+		var hexS = "00 04 00 01";
+		var hexA = _ET_GLOBAL.HexStr2Bytes(hexS);
+		socket.emit(_ET_GLOBAL.PROXY_LEFT_IN, hexA);
 	});
 	// 订阅svr_out事件
 	socket.on(_ET_GLOBAL.CTL_CHANNEL_OUT, function(json) { 
@@ -130,8 +99,11 @@ $(function () {
         content.prepend(p);
 	});			
 	//proxy Left channel event：proxy data reply
-	socketProxy.on(_ET_GLOBAL.PROXY_LEFT_OUT, function(data) {
-		$('#proxyReply').val(String.fromCharCode.apply(null, new Uint8Array(data)));
+	socket.on(_ET_GLOBAL.PROXY_LEFT_OUT, function(data) {
+		str = _ET_GLOBAL.Bytes2HexStr(new Uint8Array(data));
+		$('#proxyReply').val(str);
+		var hexS = "00 04 00 01 00 01 02 03 04 05 06 07 08 09 0a 0b";
+		var hexA = _ET_GLOBAL.HexStr2Bytes(hexS);
 	});
 	// 各种连接状态监听器
 	socket.on('disconnect',function() { 

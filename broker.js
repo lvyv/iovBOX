@@ -64,9 +64,9 @@ function handle_request(req, res) {
 
 // Loading socket.io
 var server = http.createServer(handle_request);
-var io = require('socket.io').listen(server);
-server.listen(3352);
-server.listen(3354);
+var io = require('socket.io')(server);
+server.listen(1123);
+
 
 //WebSocket连接监听
 io.on('connection', function (socket) {
@@ -75,8 +75,13 @@ io.on('connection', function (socket) {
 		name:false,
 		time:false,
 		token:0,
-		color:getColor()
+		color:getColor(),
+		l_sock:socket,
+		w_sock:null
 	};
+	var local_port = socket.request.connection.localPort;
+	//console.log(local_port);
+	
 	// 对ctrl channel事件的监听
 	socket.on(_ET_GLOBAL.CTL_CHANNEL_IN, function(data) {
 		// 发送反馈
@@ -86,20 +91,15 @@ io.on('connection', function (socket) {
 	});
 	//proxy Left channel event：proxy data forward
 	socket.on(_ET_GLOBAL.PROXY_LEFT_IN,function(data) {
+		console.log("broker.js:" + data);
 		if(!handlers.proxy_handle(data, client, socket))
 			socket.disconnect(true);
-		console.log(data);
 	});
     //监听出退事件
     socket.on('disconnect', function () {  
       console.log(client.name + ' Disconnect.');
     });
 });
-
-var getTime=function(){
-  var date = new Date();
-  return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
-};
 
 var getColor=function(){
   var colors = ['aliceblue','antiquewhite','aqua','aquamarine','pink','red','green',
@@ -114,7 +114,7 @@ var getColor=function(){
  * @param {string} option.url option项描述
  * @param {string=} option.method option项描述，可选参数
  */
-function proxy_process(proto, host, port) {
+/* function proxy_process(proto, host, port) {
 	var dgram = require('dgram');
 	var client = dgram.createSocket('udp4');
 	//udp发送数据
@@ -143,3 +143,4 @@ function proxy_process(proto, host, port) {
 		});
 }
 
+ */
