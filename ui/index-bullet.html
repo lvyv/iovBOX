@@ -1,7 +1,9 @@
 <!DOCTYPE html>
+<html>
+<head>
 <meta charset="utf-8">
+<link href="buttons.css" rel="stylesheet" type="text/css" />
 <style>
-
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin: auto;
@@ -10,12 +12,32 @@ body {
   width: 960px;
 }
 
-button {
-  /*position: absolute;*/
-  right: 10px;
-  top: 10px;
-}
 
+
+input {
+	font-family: "Lato", "Lucida Grande", "Lucida Sans Unicode", Tahoma, Sans-Serif;
+    font-size: 13px;
+    padding: 4px 5px 4px 5px;
+    outline: 0;
+    border: 3px solid #ccc;
+    border-radius: 2px;
+    transition: border-color 0.2s;
+	padding: 10px;
+    background-color: white;
+    user-select: text;
+    cursor: auto;
+	text-rendering: auto;
+    color: initial;
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: start;
+    margin: 1em;
+    font: 13.3333px Arial;
+}
 .bullet { font: 10px sans-serif; }
 .bullet .marker { stroke: #000; stroke-width: 2px; }
 .bullet .tick line { stroke: #666; stroke-width: .5px; }
@@ -28,11 +50,10 @@ button {
 .bullet .subtitle { fill: #999; }
 
 </style>
-<button id="Connect_btn">Update</button>
+
 <script src="./d3.v3.min.js"></script>
 <script src="bullet.js"></script>
 <script>
-
 var margin = {top: 5, right: 40, bottom: 20, left: 120},
     width = 960 - margin.left - margin.right,
     height = 50 - margin.top - margin.bottom;
@@ -103,3 +124,12 @@ function randomize(d) {
 
 
 </script>
+</head>
+
+<body>
+<span><b>E515S生产测试软件</b></span>
+<button class="button button-glow button-border button-rounded button-primary" id="Connect_btn">连接板卡</button>
+<input type="text" value="192.168.1.122" id="ip-address" required="required" maxlength="55">
+<hr/>
+</body>
+</html>
