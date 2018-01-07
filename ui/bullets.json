@@ -1,0 +1,7 @@
+[
+  {"title":"Wi-Fi","subtitle":"AT测试, PING PHY, SSID","ranges":[100],"measures":[0,100],"markers":[100]},
+  {"title":"BlueTooth","subtitle":"%","ranges":[20,25,30],"measures":[21,23],"markers":[26]},
+  {"title":"CAN","subtitle":"US$, average","ranges":[350,500,600],"measures":[100,320],"markers":[550]},
+  {"title":"485","subtitle":"count","ranges":[1400,2000,2500],"measures":[1000,1650],"markers":[2100]},
+  {"title":"COM","subtitle":"out of 5","ranges":[3.5,4.25,5],"measures":[3.2,4.7],"markers":[4.4]}
+]
