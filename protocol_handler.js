@@ -17,6 +17,7 @@
 var _dgram = require('dgram');
 var _net = require('net');
 var	_ET_GLOBAL = require("./top.js");
+var debugptlh = require("./iovdebug.js").getDebug('protocol');
 var _udp_cli = _dgram.createSocket('udp4');
 //var _tcp_cli = net.connect(_ET_GLOBAL.PROXY_PORT, _ET_GLOBAL.PROXY_HOST);
 //监听message事件，接收数据(这个地方有bug)
@@ -40,6 +41,12 @@ const proto_handler_ = {
 	"port":port,
 	"cmd":ctrl_cmd
  };
+
+ 			//监听message事件，接收数据
+_udp_cli.on('message', function(msg) {
+				socket.emit(_ET_GLOBAL.PROXY_LEFT_OUT, msg);
+				console.log('收到了UDP服务端消息:', msg.toString());
+	});
 
 /**
  * 函数描述
@@ -71,6 +78,7 @@ function login(pkg, client, socket) {
  * @param {Object} socket 参数描述
  */
 function host(pkg, client, socket) {
+	debugptlh(pkg.host);
 	_ET_GLOBAL.PROXY_HOST = pkg.host;
 } 
 
@@ -82,6 +90,7 @@ function host(pkg, client, socket) {
  * @param {Object} socket 参数描述
  */
 function port(pkg, client, socket) {
+	debugptlh(pkg.port);
 	_ET_GLOBAL.PROXY_PORT = pkg.port;
 } 
 
@@ -136,12 +145,15 @@ module.exports.ctl_handle = ctl_handle;
  */
 var proxy_handle = function proxy_process(pkg, client, socket) {
 	try {
+
 		var buf = Buffer.from(pkg);
+		debugptlh('proxy:%o', buf);
 		_udp_cli.send(buf, 0, buf.length, _ET_GLOBAL.PROXY_PORT, _ET_GLOBAL.PROXY_HOST,
 		  function(err, bytes) {
 				//数据发送监听器
 				if(err) {throw err;}
 			});
+
 		return true;
 	} catch(error) {
 		console.log(error);

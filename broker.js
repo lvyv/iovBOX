@@ -13,16 +13,18 @@
  *	00		17.10.25	初期作成
  *	01		17.10.26	修改×××
  */
-
+console.log('broker start..');
 var url  = require("url"),
 	fs=require("fs"),
 	http=require("http"),
 	path = require("path"),
 	handlers = require("./protocol_handler.js");
 	_ET_GLOBAL = require("./top.js");
+var debugbrk = require("./iovdebug.js").getDebug('broker');
 var __dirname = "./iovBOX";
 
 function handle_request(req, res) {
+    debugbrk('%s', url.parse(req.url).pathname);
     var pathname=__dirname + url.parse(req.url).pathname;
     if (pathname.charAt(pathname.length-1)==="/"){
         pathname+='broker.htm';
@@ -91,6 +93,7 @@ io.on('connection', function (socket) {
 	//proxy Left channel event：proxy data forward
 	socket.on(_ET_GLOBAL.PROXY_LEFT_IN,function(data) {
 		console.log("broker.js:" + data);
+		debugbrk("call proxy");
 		if(!handlers.proxy_handle(data, client, socket))
 			socket.disconnect(true);
 	});
