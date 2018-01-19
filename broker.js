@@ -21,9 +21,10 @@ var url  = require("url"),
 	handlers = require("./protocol_handler.js");
 	_ET_GLOBAL = require("./top.js");
 var debugbrk = require("./iovdebug.js").getDebug('broker');
-var __dirname = "./iovBOX";
+var __dirname = ".";
 
 function handle_request(req, res) {
+	debugbrk('url:%s', req.url);
     debugbrk('%s', url.parse(req.url).pathname);
     var pathname=__dirname + url.parse(req.url).pathname;
     if (pathname.charAt(pathname.length-1)==="/"){
