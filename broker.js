@@ -70,7 +70,8 @@ var io = require('socket.io')(server);
 server.listen(1123);
 
 var siofu = require("socketio-file-upload");
-var terminate = require('terminate');
+//var terminate = require('terminate');
+const { spawn } = require('child_process');
 
 //WebSocket连接监听
 io.on('connection', function (socket) {
@@ -107,9 +108,8 @@ io.on('connection', function (socket) {
 		debugbrk("cmd:%s, f:%s", cmdp.cmd, cmdp.fname);
 		switch(cmdp.cmd){
 			case "run":
-			  const { spawn } = require('child_process');
-
-              const subprocess = spawn('node', ['./jsstartup/' + cmdp.fname], {
+			  
+              var subprocess = spawn('node', ['./jsstartup/' + cmdp.fname], {
                 detached: true,
                 stdio: 'ignore'
               }); //process.argv[0]
