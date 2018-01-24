@@ -46,9 +46,13 @@
 	_ET_GLOBAL.CTL_CHANNEL_OUT = 'ctl_out';
 	_ET_GLOBAL.PROXY_LEFT_IN = 'pro_left_in';
 	_ET_GLOBAL.PROXY_LEFT_OUT = 'pro_left_out';
+	_ET_GLOBAL.PROXY_COMMAND = "pro_cmd";
 	_ET_GLOBAL.PROXY_HOST = '';
 	_ET_GLOBAL.PROXY_PORT = '';
 	_ET_GLOBAL.PROTO = '';
+
+	_ET_GLOBAL.UPLOAD_FILENAME = "";
+	_ET_GLOBAL.SUBPROC_ID = null;
 
 	
 	_ET_GLOBAL.CHANNEL_MAP = new Map();

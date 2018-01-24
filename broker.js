@@ -69,6 +69,8 @@ var server = http.createServer(handle_request);
 var io = require('socket.io')(server);
 server.listen(1123);
 
+var siofu = require("socketio-file-upload");
+var terminate = require('terminate');
 
 //WebSocket连接监听
 io.on('connection', function (socket) {
@@ -98,11 +100,52 @@ io.on('connection', function (socket) {
 		if(!handlers.proxy_handle(data, client, socket))
 			socket.disconnect(true);
 	});
+
+    socket.on(_ET_GLOBAL.PROXY_COMMAND,function(data) {
+		debugbrk("proxy cmd:%o", data);
+		var cmdp = JSON.parse(data);
+		debugbrk("cmd:%s, f:%s", cmdp.cmd, cmdp.fname);
+		switch(cmdp.cmd){
+			case "run":
+			  const { spawn } = require('child_process');
+
+              const subprocess = spawn('node', ['./jsstartup/' + cmdp.fname], {
+                detached: true,
+                stdio: 'ignore'
+              }); //process.argv[0]
+
+              subprocess.unref();
+	          _ET_GLOBAL.SUBPROC_ID = subprocess;
+			break;
+			case "terminate":
+			if(_ET_GLOBAL.SUBPROC_ID){
+				//child.stdin.pause();
+				_ET_GLOBAL.SUBPROC_ID.kill();
+			  /*terminate(_ET_GLOBAL.SUBPROC_ID, function (err) {
+                if (err) {  
+                 console.log("Oopsy: " + err);  
+                }
+                else {
+                   console.log('terminate done'); 
+                 }
+               });*/
+			}
+			break;
+		}
+		
+	});
+
     //监听出退事件
     socket.on('disconnect', function () {  
       console.log(client.name + ' Disconnect.');
     });
+	var uploader = new siofu();
+    uploader.dir = "./jsstartup";
+    uploader.listen(socket);
 });
+
+
+
 
 var getColor=function(){
   var colors = ['aliceblue','antiquewhite','aqua','aquamarine','pink','red','green',
