@@ -4,6 +4,7 @@
         <meta charset="utf-8" />
         <title>Socket.io</title>
 		<script src="/socket.io/socket.io.js"></script>
+		<script src="/siofu/client.js"></script>
 		<script src="./jquery.min.js"></script>
 		<script src="./top.js"></script>
 		<script src="./io-client.js"></script>
@@ -39,6 +40,12 @@
 			<span><textarea id="proxyReply" rows="5" cols="50"></textarea></span>
 		</div>
 		<div id="content"></div>
+		<div><span>上传：<input type="file" id="siofu_input" /></span> 
+		<span><button type="button" id="runProg">运行</button>
+		      <button type="button" id="terminateProg">停止</button>
+		</span>
+		    <span><input type="text" id="progCmd" value="" placeholder="请输入命令"/></span>
+		</div>
     </body>
 </html>
 

@@ -14,11 +14,21 @@ $(function () {
 	var portCmd = $('#port_cmd');
 
 
-	var socket = io.connect(wssvr.val());
+	var socket = io.connect(); //wssvr.val()
+    var uploader = new SocketIOFileUpload(socket);
+	$('#siofu_input').val();
 
+    uploader.listenOnInput(document.getElementById("siofu_input"));
+    uploader.addEventListener("complete", function(data) {
+		console.log(data.file.name);
+		_ET_GLOBAL.UPLOAD_FILENAME = data.file.name;
+		//$('#siofu_input').val(data.file.name);
+	});
+
+	
 	//通过“回车”提交控制信道命令
 	input.keydown(function(e) {
-		if (e.keyCode === 13) {
+		if (e.keyCode === 13) {  //event.which == 13
 			try {
 				var date = new Date();
 				var msg = $(this).val();
@@ -93,6 +103,20 @@ $(function () {
 		var hexA = _ET_GLOBAL.HexStr2Bytes(hexS);
 		socket.emit(_ET_GLOBAL.PROXY_LEFT_IN, hexA);
 	});
+
+   $('#runProg').click(function() {
+	   var strJs = '{"cmd":"run","fname":"' + _ET_GLOBAL.UPLOAD_FILENAME + '"}';
+	   console.log(strJs);
+	   socket.emit(_ET_GLOBAL.PROXY_COMMAND, strJs);
+   });
+   
+   $('#terminateProg').click(function() {
+	   var strJs = '{"cmd":"terminate","fname":"' + _ET_GLOBAL.UPLOAD_FILENAME + '"}';
+	   console.log(strJs);
+	   socket.emit(_ET_GLOBAL.PROXY_COMMAND, strJs);
+   });
+
+
 	// 订阅svr_out事件
 	socket.on(_ET_GLOBAL.CTL_CHANNEL_OUT, function(json) { 
 		var p = '<p><span style="color:'+json.color+';">server @ ' + json.time + '</span> '+json.token+'</p>';
