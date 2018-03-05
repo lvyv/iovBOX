@@ -22,6 +22,7 @@ $(function () {
     uploader.addEventListener("complete", function(data) {
 		console.log(data.file.name);
 		_ET_GLOBAL.UPLOAD_FILENAME = data.file.name;
+		
 		//$('#siofu_input').val(data.file.name);
 	});
 
