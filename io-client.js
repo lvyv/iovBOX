@@ -17,7 +17,6 @@ $(function () {
 	var socket = io.connect(); //wssvr.val()
     var uploader = new SocketIOFileUpload(socket);
 	$('#siofu_input').val();
-
     uploader.listenOnInput(document.getElementById("siofu_input"));
     uploader.addEventListener("complete", function(data) {
 		console.log(data.file.name);
