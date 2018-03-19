@@ -1,7 +1,7 @@
-newFunction();
+start();
     
  
-function newFunction() {
+function start() {
     var http = require("http");
     // 创建server，指定处理客户端请求的函数
     http.createServer(function (request, response) {
@@ -12,4 +12,3 @@ function newFunction() {
     }).listen(8000);
     console.log("Hello World, lvyu is listening at prt 8000");
 }
-    
