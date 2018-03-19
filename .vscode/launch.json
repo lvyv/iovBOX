@@ -17,18 +17,9 @@
         },
         {
             "type": "node",
-            "request": "attach",
-            "name": "Attach to Remote",
-            "address": "192.168.101.73",
-            "port": 9229,
-            //"localRoot": "${workspaceFolder}",
-            //"remoteRoot": "Absolute path to the remote directory containing the program"
-        },
-        {
-            "type": "node",
             "request": "launch",
             "name": "启动程序",
-            "program": "${workspaceFolder}/broker.js"
+            "program": "${workspaceFolder}/test/ssh2-tst.js"
         }
     ]
 }
