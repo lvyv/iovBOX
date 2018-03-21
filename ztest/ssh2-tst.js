@@ -6,7 +6,7 @@ let host_config_ = {
     password: '1261123'
     //privateKey: require('fs').readFileSync('./id_dsa')
 };
-//test
+
 //可以工作但到底多少次是成功，多少次失败，
 //在程序中无法控制，这是在封装的类中，没有把错误抛出。
 //进行Promise封装，解决回调地狱问题

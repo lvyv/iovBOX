@@ -19,7 +19,7 @@
             "type": "node",
             "request": "launch",
             "name": "启动程序",
-            "program": "${workspaceFolder}/test/ssh2-tst.js"
+            "program": "${workspaceFolder}/ztest/ssh2-tst.js"
         }
     ]
 }
