@@ -1,12 +1,28 @@
-﻿"use strict"
+﻿/**
+ * @file 实现开发环境下远程访问E515,E529盒子同步文件和执行命令封装
+ *		 
+ *	启动格式：被应用程序调用
+ *
+ *	文件名			:ssh2promise.js	
+ *	编程者			:Awen
+ *	日期			:2018.3.24	
+ *	项目名			:车联网超级终端 Platform技术预研	
+ *	操作系统		:Cross
+ *
+ *	编号----日期--------注释-------------------------------
+ *	00		17.10.25	初期作成
+ *	01		17.10.26	修改×××
+ */
+"use strict"
 
-var ssh2 = require("ssh2");
-var util=require("util")
-var events=require("events");
+//var ssh2 = require("ssh2");
 var Client = require("ssh2").Client;
 var fs = require("fs");
 var path = require('path');
+
 var through = require('through');
+var util=require("util")
+var events=require("events");
 
 function SSH2UTILS(){
 	this.conn = new Client();	
@@ -14,7 +30,7 @@ function SSH2UTILS(){
 
 /**
 * 描述：连接远程机器
-* 参数：server,远程机器凭证；
+* 参数：server,远程机器地址信息；
 *		then,回调函数
 */
 SSH2UTILS.prototype.connect = function (server, then) {
@@ -71,20 +87,23 @@ SSH2UTILS.prototype.disconnect = function (then) {
 *		then,回调函数
 * 回调：then(err, data):data 运行命令之后的返回信息
 */
-SSH2UTILS.prototype.exec = function(cmd, then) {
-    this.conn.exec(cmd, function (err, stream) {
-        var data = "";
-        stream.pipe(through(function onWrite(buf) {
-            data = data+buf;
-        }, function onEnd() {
-            stream.unpipe();
-        }));
-        stream.on('close', function () {
-            console.log(cmd);
-            if(then)
-                then(null, ''+data);
-        });
-    });
+SSH2UTILS.prototype.exec = function (cmd, then) {
+	var that = this;
+	if (then) {
+		this.conn.exec(cmd, function (err, stream) {
+			var data = "";
+			stream.pipe(through(function onWrite(buf) {
+				data = data + buf;
+			}, function onEnd() {
+				stream.unpipe();
+			}));
+			stream.on('close', function () {
+				console.log(cmd);
+				if (then)
+					then(null, '' + data);
+			});
+		});
+	}
 };
 
 
