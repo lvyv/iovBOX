@@ -104,6 +104,19 @@ SSH2UTILS.prototype.exec = function (cmd, then) {
 			});
 		});
 	}
+	return new Promise(function(resolve,reject){
+		that.conn.exec(cmd, function (err, stream) {
+			var data = "";
+			stream.pipe(through(function onWrite(buf) {
+				data = data + buf;
+			}, function onEnd() {
+				stream.unpipe();
+			}));
+			stream.on('close', function () {
+				resolve(data);
+			});
+		});
+	});
 };
 
 

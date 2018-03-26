@@ -1,6 +1,7 @@
 let assert_ = require("assert");
 let ssh2_ = require("../src/ssh2promise").SSH2UTILS;
 let fs_ = require("fs");
+let path_ =  require("path");
 let host_config_ = {
   host: '192.168.75.130',
   port: 22,
@@ -23,11 +24,14 @@ rmt4 = new ssh2_();
 
 const promise = Promise.resolve('0');
 promise
-  .then(result => { console.log(result); rmt1.connect(host_config_); return '1'; })
+  .then(result => { console.log(result); return rmt1.connect(host_config_);})
+  .then(result => { return rmt1.exec('ls');})
   .then(result => { console.log(result); rmt2.connect(host_config2_); return '2'; })
   .then(result => { console.log(result); rmt3.connect(host_config_); return '3'; })
   .then(result => { console.log(result); rmt4.connect(host_config2_); return '4'; })
   .catch(error => { console.log(error) });
+
+let files = getAllFiles(".");
 
 //console.log('hello');
 //可以工作但到底多少次是成功，多少次失败，
@@ -86,4 +90,26 @@ function readFileAsync(file, encoding, cb) {
         resolve(data);
     })
   })
+}
+
+function getAllFiles(root) {
+  console.log('root', path.basename(root))
+  let stat = fs.statSync(root);
+  let res = [];
+  if (stat.isFile()) {
+      res.push(root);
+  } else if (stat.isDirectory()) {
+      let files = fs.readdirSync(root);
+      files.forEach(function (file) {
+          var pathname = root + '/' + file
+              , stat = fs.lstatSync(pathname);
+
+          if (!stat.isDirectory()) {
+              res.push(pathname);
+          } else {
+              res = res.concat(getAllFiles(pathname));
+          }
+      });
+  }
+  return res;
 }
