@@ -15,17 +15,16 @@
  */
 "use strict"
 
-//var ssh2 = require("ssh2");
 var Client = require("ssh2").Client;
 var fs = require("fs");
 var path = require('path');
 
 var through = require('through');
-var util=require("util")
-var events=require("events");
+var util = require("util")
+var events = require("events");
 
-function SSH2UTILS(){
-	this.conn = new Client();	
+function SSH2UTILS() {
+	this.conn = new Client();
 }
 
 /**
@@ -35,9 +34,9 @@ function SSH2UTILS(){
 */
 SSH2UTILS.prototype.connect = function (server, then) {
 	var that = this;
-	console.log('connecting '+server['host']);
+	console.log('connecting ' + server['host']);
 	if (then) {
-		this.conn.on('ready', function () {
+		that.conn.on('ready', function () {
 			console.log(server['host'] + ' ready!\n');
 			if (then)
 				then();
@@ -46,19 +45,20 @@ SSH2UTILS.prototype.connect = function (server, then) {
 		}).on('close', function (had_error) {
 			console.log(server['host'] + ' closed！');
 		}).connect(server);
+	} else {
+		return new Promise(function (resolve, reject) {
+			that.conn.on('ready', function () {
+				console.log(server['host'] + ' ready!\n');
+				resolve("ready");
+			}).on('error', function (err) {
+				console.log(err);
+				reject(err);
+			}).on('close', function (had_error) {
+				console.log('close');
+				reject("close");
+			}).connect(server);
+		});
 	}
-	return new Promise(function(resolve, reject){
-		that.conn.on('ready', function(){
-			console.log(server['host'] + ' ready!\n');
-			resolve("ready");
-		}).on('error',function(err){
-			console.log(err);
-			reject(err);
-		}).on('close', function(had_error){
-			console.log('close');
-			reject("close");
-		}).connect(server);
-	});
 };
 
 /**
@@ -73,12 +73,13 @@ SSH2UTILS.prototype.disconnect = function (then) {
 				then();
 		});
 		this.conn.end();
+	} else {
+		return new Promise(function (resolve, reject) {
+			that.conn.on('end', function () {
+				resolve('end');
+			}).end();
+		});
 	}
-	return new Promise(function(resolve,reject){
-		that.conn.on('end', function(){
-			resolve('end');
-		}).end();	
-	});
 };
 
 /**
@@ -103,33 +104,35 @@ SSH2UTILS.prototype.exec = function (cmd, then) {
 					then(null, '' + data);
 			});
 		});
-	}
-	return new Promise(function(resolve,reject){
-		that.conn.exec(cmd, function (err, stream) {
-			var data = "";
-			stream.pipe(through(function onWrite(buf) {
-				data = data + buf;
-			}, function onEnd() {
-				stream.unpipe();
-			}));
-			stream.on('close', function () {
-				resolve(data);
+	} else {
+		return new Promise(function (resolve, reject) {
+			that.conn.exec(cmd, function (err, stream) {
+				var data = "";
+				stream.pipe(through(function onWrite(buf) {
+					data = data + buf;
+				}, function onEnd() {
+					stream.unpipe();
+				}));
+				stream.on('close', function () {
+					resolve(data);
+				});
 			});
 		});
-	});
+	}
 };
 
 /**
-* 描述：获取本地指定目录下的所有文件列表信息
+* 描述：获取本地指定目录下的所有文件列表信息(不包含排除目录或文件)
 * 参数：fs 文件模块，
 *		path 路径解析模块，
 *		root 指定目录，
 *		exlcude 排除目录
 */
-SSH2UTILS.prototype.getAllFiles = function getAllFiles(fs,path,root,exclude) {
-	if(exclude.includes(path.resolve(root))) {
-        return [];
-    }
+SSH2UTILS.prototype.getAllFiles = function getAllFiles(fs, path, root, exclude) {
+	let bn = path.basename(path.resolve(root));
+	if (exclude.includes(bn)) {
+		return [];
+	}
 	let stat = fs.statSync(root);
 	let res = [];
 	if (stat.isFile()) {
@@ -139,11 +142,11 @@ SSH2UTILS.prototype.getAllFiles = function getAllFiles(fs,path,root,exclude) {
 		files.forEach(function (file) {
 			var pathname = root + path.sep + file
 				, stat = fs.statSync(pathname);
-  
+
 			if (!stat.isDirectory()) {
 				res.push(pathname);
 			} else {
-				res = res.concat(getAllFiles(fs, path, pathname,exclude));
+				res = res.concat(getAllFiles(fs, path, pathname, exclude));
 			}
 		});
 	}
@@ -157,15 +160,17 @@ SSH2UTILS.prototype.getAllFiles = function getAllFiles(fs,path,root,exclude) {
 *		then,回调函数
 * 回调：then(err, result)
 */
-SSH2UTILS.prototype.uploadFile = function(localPath, remotePath, then) {
-	this.conn.sftp(function(err, sftp){
-		if(err){
-			if(then)
+SSH2UTILS.prototype.uploadFile = function (localPath, remotePath, then) {
+	console.log(localPath + "->remote:" + remotePath);
+	this.conn.sftp(function (err, sftp) {
+		if (err) {
+			if (then)
 				then(err);
-		}else{
-			sftp.fastPut(localPath, remotePath, function(err, result) {
+		} else {
+			//sftp.fastPut(localPath, "~/iovBOX/tes.tmp", function (err, result) {
+			sftp.fastPut(localPath, remotePath, function (err, result) {
 				sftp.end();
-				if(then)
+				if (then)
 					then(err, result);
 			});
 		}
@@ -179,19 +184,19 @@ SSH2UTILS.prototype.uploadFile = function(localPath, remotePath, then) {
 *		then,回调函数
 * 回调：then(err, result)
 */
-SSH2UTILS.prototype.downloadFile = function(remotePath, localPath, then) {
-	this.conn.sftp(function(err, sftp){
-		if(err){
-			if(then)
+SSH2UTILS.prototype.downloadFile = function (remotePath, localPath, then) {
+	this.conn.sftp(function (err, sftp) {
+		if (err) {
+			if (then)
 				then(err);
-		}else{
-			sftp.fastGet(remotePath, localPath, function(err, result) {
-				if(err){
-					if(then)
+		} else {
+			sftp.fastGet(remotePath, localPath, function (err, result) {
+				if (err) {
+					if (then)
 						then(err);
-				}else{
+				} else {
 					sftp.end();
-					if(then)
+					if (then)
 						then(err, result);
 				}
 			});
@@ -206,18 +211,18 @@ SSH2UTILS.prototype.downloadFile = function(remotePath, localPath, then) {
 *		then 回调函数
 * 回调：then(err, dirs) ： dir, 获取的列表信息
 */
-SSH2UTILS.prototype.getFileOrDirList = function(remotePath, isFile, then) {
-	var cmd = "find " + remotePath + " -type "+ (isFile == true ? "f":"d") + "\nexit\n";
-	this.exec(cmd, function(err, data) {
+SSH2UTILS.prototype.getFileOrDirList = function (remotePath, isFile, then) {
+	var cmd = "find " + remotePath + " -type " + (isFile == true ? "f" : "d") + "\nexit\n";
+	this.exec(cmd, function (err, data) {
 		var arr = [];
 		var dirs = [];
 		arr = data.split("\r\n");
-		arr.forEach(function(dir){
-			if(dir.indexOf(remotePath) ==0) {
+		arr.forEach(function (dir) {
+			if (dir.indexOf(remotePath) == 0) {
 				dirs.push(dir);
 			}
 		});
-		if(then)
+		if (then)
 			then(err, dirs);
 	});
 };
@@ -226,24 +231,24 @@ SSH2UTILS.prototype.getFileOrDirList = function(remotePath, isFile, then) {
 /**
 * 描述：控制上传或者下载一个一个的执行
 */
-function Control(){
+function Control() {
 	events.EventEmitter.call(this);
 }
 util.inherits(Control, events.EventEmitter); // 使这个类继承EventEmitter
 
 var control = new Control();
 
-control.on("donext", function(todos, then){
-	if(todos.length > 0){
+control.on("donext", function (todos, then) {
+	if (todos.length > 0) {
 		var func = todos.shift();
-		func(function(err, result){
-			if(err)	{
+		func(function (err, result) {
+			if (err) {
 				then(err);
 				return;
-			}			
-			control.emit("donext", todos, then);							
+			}
+			control.emit("donext", todos, then);
 		});
-	}else{			
+	} else {
 		then(null);
 	}
 });
@@ -255,34 +260,34 @@ control.on("donext", function(todos, then){
 *		then 回调函数
 * 回调：then(err)
 */
-SSH2UTILS.prototype.downloadDir = function(remoteDir, localDir, then) {
+SSH2UTILS.prototype.downloadDir = function (remoteDir, localDir, then) {
 	var that = this;
-	that.getFileOrDirList(remoteDir, false, function(err, dirs){
-		if(err){
-			if(then)
+	that.getFileOrDirList(remoteDir, false, function (err, dirs) {
+		if (err) {
+			if (then)
 				then(err);
 			return;
-		}else{
-			that.getFileOrDirList(remoteDir, true, function(err, files){
-				if(err){
-					if(then)
+		} else {
+			that.getFileOrDirList(remoteDir, true, function (err, files) {
+				if (err) {
+					if (then)
 						then(err);
-				}else{					
+				} else {
 					dirs.shift();
-					dirs.forEach(function(dir){	
-						var tmpDir = path.join(localDir, dir.slice(remoteDir.length+1)).replace(/[//]\g/, '\\');
+					dirs.forEach(function (dir) {
+						var tmpDir = path.join(localDir, dir.slice(remoteDir.length + 1)).replace(/[//]\g/, '\\');
 						// 创建目录
-						fs.mkdirSync(tmpDir);				
+						fs.mkdirSync(tmpDir);
 					});
 					var todoFiles = [];
-					files.forEach(function(file){
-						var tmpPath = path.join(localDir, file.slice(remoteDir.length+1)).replace(/[//]\g/, '\\');
-						todoFiles.push(function(done){
+					files.forEach(function (file) {
+						var tmpPath = path.join(localDir, file.slice(remoteDir.length + 1)).replace(/[//]\g/, '\\');
+						todoFiles.push(function (done) {
 							// that.downloadFile(file, tmpPath, done);
-							that.downloadFile(file, tmpPath, function(err, result){
+							that.downloadFile(file, tmpPath, function (err, result) {
 								done(err, result);
 							});
-							console.log("downloading the "+file);
+							console.log("downloading the " + file);
 						});// end of todoFiles.push						
 					});
 					control.emit("donext", todoFiles, then);
@@ -298,18 +303,16 @@ SSH2UTILS.prototype.downloadDir = function(remoteDir, localDir, then) {
 *		dirs 目录列表
 *		files 文件列表
 */
-function getFileAndDirList(localDir, dirs, files){
+function getFileAndDirList(localDir, dirs, files) {
 	var dir = fs.readdirSync(localDir);
-	for(var i = 0; i < dir.length; i ++){
+	for (var i = 0; i < dir.length; i++) {
 		var p = path.join(localDir, dir[i]);
-		var stat = fs.statSync(p); 
-		if(stat.isDirectory())
-		{
+		var stat = fs.statSync(p);
+		if (stat.isDirectory()) {
 			dirs.push(p);
 			getFileAndDirList(p, dirs, files);
 		}
-		else
-		{
+		else {
 			files.push(p);
 		}
 	}
@@ -324,54 +327,54 @@ function getFileAndDirList(localDir, dirs, files){
 * 回调：then(err)
 */
 var cnt = 0;
-SSH2UTILS.prototype.uploadDir = function(localDir, remoteDir, then) {
+SSH2UTILS.prototype.uploadDir = function (localDir, remoteDir, then) {
 	var that = this;
 	var dirs = [];
 	var files = [];
 	getFileAndDirList(localDir, dirs, files);
-		
+
 	// 创建远程目录
 	var todoDir = [];
 	var todoCmd = [];
 
-	var fileName = 'tmp_'+ cnt +'.sh';
-	cnt ++;
+	var fileName = 'tmp_' + cnt + '.sh';
+	cnt++;
 	var shCmdFile = fs.createWriteStream(fileName);
 
-	dirs.forEach(function(dir){
-		var to = path.join(remoteDir, dir.substring(localDir.length+1)).replace(/[\\]/g, '/');			
-		var cmd = "mkdir -p " + to +"\n";	
+	dirs.forEach(function (dir) {
+		var to = path.join(remoteDir, dir.substring(localDir.length + 1)).replace(/[\\]/g, '/');
+		var cmd = "mkdir -p " + to + "\n";
 		todoCmd.push(cmd);
 		fs.appendFileSync(fileName, cmd, 'utf8');
 	});
 	shCmdFile.end();
-	
+
 	// 上传文件
 	var todoFile = [];
-	files.forEach(function(file){
-		todoFile.push(function(done){		
-			var to  = path.join(remoteDir, file.substring(localDir.length+1)).replace(/[\\]/g, '/');
+	files.forEach(function (file) {
+		todoFile.push(function (done) {
+			var to = path.join(remoteDir, file.substring(localDir.length + 1)).replace(/[\\]/g, '/');
 			console.log("upload " + file + ' to ' + to);
-			that.uploadFile(file, to, function(err, result){
+			that.uploadFile(file, to, function (err, result) {
 				done(err, result);
 			});
 		});
 	});
 
 	// 创建根目录
-	that.exec('mkdir -p '+remoteDir+'\nexit\n', function (err, data) {
-		console.log('mkdir -p '+remoteDir+'\nexit\n');
-		if(err) {
+	that.exec('mkdir -p ' + remoteDir + '\nexit\n', function (err, data) {
+		console.log('mkdir -p ' + remoteDir + '\nexit\n');
+		if (err) {
 			then(err);
-		}else {
+		} else {
 			// 上传命令，运行、删除命令
-			that.uploadFile(fileName, remoteDir+'/'+fileName, function(err, result){
+			that.uploadFile(fileName, remoteDir + '/' + fileName, function (err, result) {
 				fs.unlinkSync(fileName);// 删除命令文件
-				if(err) throw err;
-				that.exec('cd ' + remoteDir + '\nsh '+fileName+'\nrm -rf '+fileName+'\nexit\n', function(err, date){
-					control.emit("donext", todoFile, function(err){
-						if(err) throw err;
-						if(then)
+				if (err) throw err;
+				that.exec('cd ' + remoteDir + '\nsh ' + fileName + '\nrm -rf ' + fileName + '\nexit\n', function (err, date) {
+					control.emit("donext", todoFile, function (err) {
+						if (err) throw err;
+						if (then)
 							then(err);
 					});
 				});
@@ -387,8 +390,8 @@ SSH2UTILS.prototype.uploadDir = function(localDir, remoteDir, then) {
  * 回调：then(err, date) : data创建目录之后返回的信息
  */
 SSH2UTILS.prototype.mkdir = function (remoteDir, then) {
-    var cmd = 'mkdir -p ' + remoteDir + '\nexit\n';
-    this.exec(cmd, then);
+	var cmd = 'mkdir -p ' + remoteDir + '\nexit\n';
+	this.exec(cmd, then);
 };
 
 /**
@@ -398,8 +401,8 @@ SSH2UTILS.prototype.mkdir = function (remoteDir, then) {
  *  回调：then(err, date) : data 删除之后返回的信息
  */
 SSH2UTILS.prototype.rmdir = function (remoteDir, then) {
-    var cmd = 'rm -rf ' + remoteDir + '\nexit\n';
-    this.exec(cmd, then);
+	var cmd = 'rm -rf ' + remoteDir + '\nexit\n';
+	this.exec(cmd, then);
 };
 
 exports.SSH2UTILS = SSH2UTILS;

@@ -3,24 +3,30 @@ let ssh2_ = require("../src/ssh2promise").SSH2UTILS;
 let fs_ = require("fs");
 let path_ =  require("path");
 
-let host_config_ = initConfig(fs_, ".ssh2");
+let host_config_ = initConfig(fs_, "ssh2.cfg");
 
 rmt1 = new ssh2_();
-// rmt2 = new ssh2_();
-// rmt3 = new ssh2_();
-// rmt4 = new ssh2_();
+let files = rmt1.getAllFiles(fs_, path_, "e:\\_proj\\driver\\node-v6.11.3\\Debug\\iovBOX", host_config_.exclude);
+//doRemoteCmd(rmt1);
 
 const promise = Promise.resolve('0');
 promise
   .then(result => { console.log(result); return rmt1.connect(host_config_);})
-  .then(result => { return rmt1.exec('ls');})
-  // .then(result => { console.log(result); rmt2.connect(host_config_); return '2'; })
-  // .then(result => { console.log(result); rmt3.connect(host_config_); return '3'; })
-  // .then(result => { console.log(result); rmt4.connect(host_config_); return '4'; })
+  .then(result => { return rmt1.exec('echo ~');})
+  .then(result => { 
+    var home_dir = null;
+    if(host_config_.remotePath ==='~') home_dir = result.trim(); 
+    var rmt_prj_root = path_.posix.join(home_dir, path_.basename(host_config_.localPath));
+    files.forEach(element => {
+      var rel_path = path_.relative(host_config_.localPath, path_.dirname(element));
+      var rpath = path_.posix.join(rmt_prj_root, rel_path);
+      rmt1.exec("mkdir -p " + rpath).then(      
+      rmt1.uploadFile(element, path_.posix.join(rpath, path_.basename(element)), (err,res) => { }));
+    });
+  })
   .catch(error => { console.log(error) });
 
-let files = rmt1.getAllFiles(fs_, path_, "e:\\_proj\\driver\\node-v6.11.3\\Debug\\iovBOX", host_config_.exclude);
-console.log(files);
+
 //console.log('hello');
 //可以工作但到底多少次是成功，多少次失败，
 //在程序中无法控制，这是在封装的类中，没有把错误抛出。
@@ -61,23 +67,10 @@ console.log(files);
 
 function doRemoteCmd(rmt) {
   rmt.connect(host_config_, () => {
-    rmt.mkdir("./temp1", () => {
+    rmt.uploadFile("c:/meminfo","/home/lvyu/meminfo",() => {
       rmt.disconnect();
     });
   });
-}
-
-function readFileAsync(file, encoding, cb) {
-  if (cb) return fs_.readFile(file, encoding, cb)
-
-  return new Promise(function (resolve, reject) {
-    fs_.readFile(file, function (err, data) {
-      if (err)
-        return reject(err);
-      else
-        resolve(data);
-    })
-  })
 }
 
 function initConfig(fs, config_file) {
@@ -91,9 +84,9 @@ function initConfig(fs, config_file) {
         port: 22,
         username: "lvyu",
         password: "123456",
-        exclude : ['e:\\_proj\\driver\\node-v6.11.3\\Debug\\iovBOX\\.git',
-        'e:\\_proj\\driver\\node-v6.11.3\\Debug\\iovBOX\\.vscode', 
-        'e:\\_proj\\driver\\node-v6.11.3\\Debug\\iovBOX\\.ssh2'] 
+        remotePath: "~",
+        localPath: "e:/_proj/driver/node-v6.11.3/Debug/iovBOX/",
+        exclude : ['.git', '.vscode', '.ssh2'] 
       };
       fs.writeFileSync(config_file, JSON.stringify(config));
   }
