@@ -13,3 +13,26 @@ function start() {
     console.log("Hello World, iovBOX is listening at prt 8000");
 }
 
+function initConfig() {
+    try {
+        config = JSON.parse(fs.readFileSync(configPath));
+    } catch (e) {
+        console.log(e)
+        fs.createReadStream(path.join(extRoot, '.vscode-upload.json'), {
+            autoClose: true
+        }).pipe(fs.createWriteStream(configPath, {
+            flags: 'w',
+            encoding: null,
+            mode: '0666',
+            autoClose: true
+        }));
+    }
+    if (Array.isArray(config)) {
+        if (current >= config.length) {
+            current = 0;
+        }
+        currentConfig = config[current];
+    } else {
+        currentConfig = config;
+    }
+}

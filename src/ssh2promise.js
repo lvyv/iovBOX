@@ -119,6 +119,36 @@ SSH2UTILS.prototype.exec = function (cmd, then) {
 	});
 };
 
+/**
+* 描述：获取本地指定目录下的所有文件列表信息
+* 参数：fs 文件模块，
+*		path 路径解析模块，
+*		root 指定目录，
+*		exlcude 排除目录
+*/
+SSH2UTILS.prototype.getAllFiles = function getAllFiles(fs,path,root,exclude) {
+	if(exclude.includes(path.resolve(root))) {
+        return [];
+    }
+	let stat = fs.statSync(root);
+	let res = [];
+	if (stat.isFile()) {
+		res.push(root);
+	} else if (stat.isDirectory()) {
+		let files = fs.readdirSync(root);
+		files.forEach(function (file) {
+			var pathname = root + path.sep + file
+				, stat = fs.statSync(pathname);
+  
+			if (!stat.isDirectory()) {
+				res.push(pathname);
+			} else {
+				res = res.concat(getAllFiles(fs, path, pathname,exclude));
+			}
+		});
+	}
+	return res;
+}
 
 /**
 * 描述：上传文件
