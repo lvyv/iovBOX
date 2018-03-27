@@ -1,42 +1,67 @@
 let assert_ = require("assert");
+let assertP_ = require("power-assert");
 let ssh2_ = require("../src/ssh2promise").SSH2UTILS;
 let fs_ = require("fs");
-let path_ =  require("path");
+let path_ = require("path");
 
-let host_config_ = initConfig(fs_, "ssh2.cfg");
+describe('Test Configuration read Function Sets A Suite', function () {
+  context('Function Sets A context', function () {
+    let rmt_tt = new ssh2_();
+    let cfg = 'ssh2.cfg';
+    it('1# initConfig read without config file', function (done) {
+      try {
+        fs_.unlinkSync(cfg);
+        console.log('\tsuccessfully deleted %s', cfg);
+      } catch (err) {
+        // handle the error
+        console.log(err);
+      }
+      rmt_tt.initConfig(fs_, "ssh2.cfg", (err, config) => {
+        assertP_(config != null);
+      });
+      done();
+    });
 
-rmt1 = new ssh2_();
-let files = rmt1.getAllFiles(fs_, path_, "e:\\_proj\\driver\\node-v6.11.3\\Debug\\iovBOX", host_config_.exclude);
-//doRemoteCmd(rmt1);
+    it('2# initConfig read with ssh2.cfg (wrong) format', function (done) {
+      assertP_(true);
+      done();
+    });
+  });
+  // context('When promise object', function () {
+  //   it('should use `done` for test?', function (done) {
+  //     var promise = Promise.resolve(1);
+  //     promise.then(function (value) {
+  //       assert(value === 1);
+  //       done();
+  //     });
+  //   });
+  // });
+});
 
-const promise = Promise.resolve('0');
+/*
+let rmt1 = new ssh2_();
+let host_config_ = rmt1.initConfig(fs_, "ssh2.cfg");
+let files = rmt1.getAllFiles(fs_, path_, host_config_.localPath, host_config_.exclude);
+
+const promise = Promise.resolve('start');
 promise
-  .then(result => { console.log(result); return rmt1.connect(host_config_);})
-  .then(result => { return rmt1.exec('echo ~');})
-  .then(result => { 
-    var home_dir = null;
-    if(host_config_.remotePath ==='~') home_dir = result.trim(); 
+  .then(result => { return rmt1.connect(host_config_); })
+  .then(result => { return rmt1.exec('echo ~'); })
+  .then(result => {
+    var home_dir = host_config_.remotePath;
+    if (home_dir === '~') home_dir = result.trim();
     var rmt_prj_root = path_.posix.join(home_dir, path_.basename(host_config_.localPath));
     files.forEach(element => {
       var rel_path = path_.relative(host_config_.localPath, path_.dirname(element));
       var rpath = path_.posix.join(rmt_prj_root, rel_path);
-      rmt1.exec("mkdir -p " + rpath).then(      
-      rmt1.uploadFile(element, path_.posix.join(rpath, path_.basename(element)), (err,res) => { }));
+      rmt1.exec("mkdir -p " + rpath).then(result => {
+        rmt1.uploadFile(element,
+          path_.posix.join(rpath, path_.basename(element)));
+      })
     });
   })
   .catch(error => { console.log(error) });
-
-
-//console.log('hello');
-//可以工作但到底多少次是成功，多少次失败，
-//在程序中无法控制，这是在封装的类中，没有把错误抛出。
-//进行Promise封装，解决回调地狱问题
-// for (let iii = 1; iii <= 50; iii++) {
-//     console.log("第%d次执行\n", iii);
-//     let rmt = new ssh2_();
-//     doRemoteCmd(rmt);
-// };
-
+*/
 
 // describe('Array', function () {
 //   describe('#indexOf()', function () {
@@ -65,30 +90,11 @@ promise
 // });
 
 
-function doRemoteCmd(rmt) {
-  rmt.connect(host_config_, () => {
-    rmt.uploadFile("c:/meminfo","/home/lvyu/meminfo",() => {
-      rmt.disconnect();
-    });
-  });
-}
+// function doRemoteCmd(rmt) {
+//   rmt.connect(host_config_, () => {
+//     rmt.uploadFile("c:/meminfo", "/home/lvyu/meminfo", () => {
+//       rmt.disconnect();
+//     });
+//   });
+// }
 
-function initConfig(fs, config_file) {
-  let config = null;
-  try {
-      config = JSON.parse(fs.readFileSync(config_file));
-  } catch (e) {
-      console.log(e);
-      config = {
-        host : "192.168.75.130",
-        port: 22,
-        username: "lvyu",
-        password: "123456",
-        remotePath: "~",
-        localPath: "e:/_proj/driver/node-v6.11.3/Debug/iovBOX/",
-        exclude : ['.git', '.vscode', '.ssh2'] 
-      };
-      fs.writeFileSync(config_file, JSON.stringify(config));
-  }
-  return config;
-}
