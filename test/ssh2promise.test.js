@@ -4,11 +4,34 @@ let ssh2_ = require("../src/ssh2promise").SSH2UTILS;
 let fs_ = require("fs");
 let path_ = require("path");
 
-describe('Test Configuration read Function Sets A Suite', function () {
-  context('Function Sets A context', function () {
+function shouldRejected(promise) {
+  return {
+    'catch': function (fn) {
+      return promise.then(function () {
+        throw new Error('Expected promise to be rejected but it was fulfilled');
+      }, function (reason) {
+        fn.call(promise, reason);
+      });
+    }
+  };
+}
+function shouldFulfilled(promise) {
+  return {
+    'then': function (fn) {
+      return promise.then(function (value) {
+        fn.call(promise, value);
+      }, function (reason) {
+        throw reason;
+      });
+    }
+  };
+}
+
+describe('A Suite: Configuration read Function Sets', function () {
+  context('Function Sets I context', function () {
     let rmt_tt = new ssh2_();
     let cfg = 'ssh2.cfg';
-    
+
     it('1# initConfig read with ssh2.cfg (wrong) format', function (done) {
       fs_.open("ssh2.cfg", "a+", 0644, function (e, fd) {
         if (e) throw e;
@@ -33,12 +56,52 @@ describe('Test Configuration read Function Sets A Suite', function () {
       rmt_tt.initConfig(fs_, "ssh2.cfg", (err, config) => {
         assertP_(config != null);
         done();
-      });  
+      });
     });
 
   });
 });
 
+describe('B Suite: SSH Function Sets', function () {
+  context('Function Sets I context', function () {
+    let rmt_t1 = new ssh2_();
+    let svr_cfg1 = {
+      host: "192.168.75.130",
+      port: 22,
+      username: "lvyu",
+      password: "1234567",
+      remotePath: "~",
+      localPath: "e:/_proj/driver/node-v6.11.3/Debug/iovBOX/",
+      exclude: ['.git', '.vscode']
+    };
+    let rmt_t2 = new ssh2_();
+    let svr_cfg2 = {
+      host: "192.168.75.130",
+      port: 22,
+      username: "lvyu",
+      password: "123456",
+      remotePath: "~",
+      localPath: "e:/_proj/driver/node-v6.11.3/Debug/iovBOX/",
+      exclude: ['.git', '.vscode']
+    };
+
+    it('1# connect function by wrong key', function () {
+      let newp = Promise.resolve().then(result => { return rmt_t1.connect(svr_cfg1); });
+      return shouldRejected(newp).catch(function (error) {
+        assertP_(error === 'error');
+      });
+    });
+
+
+    it('2# connect function with right key', function () {
+      let newp = Promise.resolve().then(result => { return rmt_t2.connect(svr_cfg2); });
+      return shouldFulfilled(newp).then(function (value) {
+        assertP_(value === 'ready');
+      });
+    });
+
+  });
+});
 /*
 let rmt1 = new ssh2_();
 let host_config_ = rmt1.initConfigSync(fs_, "ssh2.cfg");

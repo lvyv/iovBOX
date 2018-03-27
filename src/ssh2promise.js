@@ -34,7 +34,6 @@ function SSH2UTILS() {
 */
 SSH2UTILS.prototype.connect = function (server, then) {
 	var that = this;
-	console.log('connecting ' + server['host']);
 	if (then) {
 		that.conn.on('ready', function () {
 			console.log(server['host'] + ' ready!\n');
@@ -48,13 +47,13 @@ SSH2UTILS.prototype.connect = function (server, then) {
 	} else {
 		return new Promise(function (resolve, reject) {
 			that.conn.on('ready', function () {
-				console.log(server['host'] + ' ready!\n');
+				//console.log(server['host'] + ' ready!\n');
 				resolve("ready");
 			}).on('error', function (err) {
-				console.log(err);
-				reject(err);
+				//console.log("error");
+				reject("error");
 			}).on('close', function (had_error) {
-				console.log('close');
+				//console.log('close');
 				reject("close");
 			}).connect(server);
 		});
@@ -212,7 +211,7 @@ SSH2UTILS.prototype.initConfig = function initConfig(fs, fp, cb) {
 				password: "123456",
 				remotePath: "~",
 				localPath: "e:/_proj/driver/node-v6.11.3/Debug/iovBOX/",
-				exclude: ['.git', '.vscode', '.ssh2']
+				exclude: ['.git', '.vscode']
 			};
 			fs.writeFile(fp, JSON.stringify(config), (err) => {
 				if (err)
@@ -250,7 +249,7 @@ SSH2UTILS.prototype.initConfigSync = function initConfigSync(fs, config_file) {
 			password: "123456",
 			remotePath: "~",
 			localPath: "e:/_proj/driver/node-v6.11.3/Debug/iovBOX/",
-			exclude: ['.git', '.vscode', '.ssh2']
+			exclude: ['.git', '.vscode']
 		};
 		fs.writeFileSync(config_file, JSON.stringify(config));
 	}
