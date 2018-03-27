@@ -201,33 +201,60 @@ SSH2UTILS.prototype.getAllFiles = function getAllFiles(fs, path, root, exclude) 
 */
 SSH2UTILS.prototype.initConfig = function initConfig(fs, fp, cb) {
 	let config = null;
-	try {
-		fs.readFile(fp, (err, data) => {
-			if (err) {
-				//console.log(err);
-				config = {
-					host: "192.168.75.130",
-					port: 22,
-					username: "lvyu",
-					password: "123456",
-					remotePath: "~",
-					localPath: "e:/_proj/driver/node-v6.11.3/Debug/iovBOX/",
-					exclude: ['.git', '.vscode', '.ssh2']
-				};
-				fs.writeFile(fp, JSON.stringify(config), (err) => {
-					if (err)
-						cb(err);
-					else
-						cb(null, config);
-				});
-			} else {
+
+	fs.readFile(fp, (err, data) => {
+		if (err) {
+			//console.log(err);
+			config = {
+				host: "192.168.75.130",
+				port: 22,
+				username: "lvyu",
+				password: "123456",
+				remotePath: "~",
+				localPath: "e:/_proj/driver/node-v6.11.3/Debug/iovBOX/",
+				exclude: ['.git', '.vscode', '.ssh2']
+			};
+			fs.writeFile(fp, JSON.stringify(config), (err) => {
+				if (err)
+					cb(err);
+				else
+					cb(null, config);
+			});
+		} else {
+			try {
 				config = JSON.parse(data);
 				cb(null, config);
+			} catch (e) {
+				cb(e);
 			}
-		});
+		}
+	});
+}
+/**
+* 描述：获取本地配置文件信息以联接ssh2服务器(同步版本)
+*       如果文件不存在或者非法，将按缺省模式重创建文件
+* 参数：fs 文件模块，
+*		fp file path of the config file，
+*		cb callback 回调函数
+*/
+SSH2UTILS.prototype.initConfigSync = function initConfigSync(fs, config_file) {
+	let config = null;
+	try {
+		config = JSON.parse(fs.readFileSync(config_file));
 	} catch (e) {
-		cb(e);
+		console.log(e);
+		config = {
+			host: "192.168.75.130",
+			port: 22,
+			username: "lvyu",
+			password: "123456",
+			remotePath: "~",
+			localPath: "e:/_proj/driver/node-v6.11.3/Debug/iovBOX/",
+			exclude: ['.git', '.vscode', '.ssh2']
+		};
+		fs.writeFileSync(config_file, JSON.stringify(config));
 	}
+	return config;
 }
 // /**
 // * 描述：上传文件

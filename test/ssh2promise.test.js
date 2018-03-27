@@ -8,39 +8,40 @@ describe('Test Configuration read Function Sets A Suite', function () {
   context('Function Sets A context', function () {
     let rmt_tt = new ssh2_();
     let cfg = 'ssh2.cfg';
-    it('1# initConfig read without config file', function (done) {
+    
+    it('1# initConfig read with ssh2.cfg (wrong) format', function (done) {
+      fs_.open("ssh2.cfg", "a+", 0644, function (e, fd) {
+        if (e) throw e;
+        fs_.write(fd, "pollute the file!", 0, 'utf8', function (e) {
+          if (e) throw e;
+          fs_.closeSync(fd);
+        })
+      });
+      rmt_tt.initConfig(fs_, "ssh2.cfg", (err, config) => {
+        assertP_(config == null);
+        done();
+      });
+    });
+
+    it('2# initConfig read without config file', function (done) {
       try {
         fs_.unlinkSync(cfg);
-        console.log('\tsuccessfully deleted %s', cfg);
       } catch (err) {
         // handle the error
         console.log(err);
       }
       rmt_tt.initConfig(fs_, "ssh2.cfg", (err, config) => {
         assertP_(config != null);
-      });
-      done();
+        done();
+      });  
     });
 
-    it('2# initConfig read with ssh2.cfg (wrong) format', function (done) {
-      assertP_(true);
-      done();
-    });
   });
-  // context('When promise object', function () {
-  //   it('should use `done` for test?', function (done) {
-  //     var promise = Promise.resolve(1);
-  //     promise.then(function (value) {
-  //       assert(value === 1);
-  //       done();
-  //     });
-  //   });
-  // });
 });
 
 /*
 let rmt1 = new ssh2_();
-let host_config_ = rmt1.initConfig(fs_, "ssh2.cfg");
+let host_config_ = rmt1.initConfigSync(fs_, "ssh2.cfg");
 let files = rmt1.getAllFiles(fs_, path_, host_config_.localPath, host_config_.exclude);
 
 const promise = Promise.resolve('start');
@@ -61,34 +62,8 @@ promise
     });
   })
   .catch(error => { console.log(error) });
+
 */
-
-// describe('Array', function () {
-//   describe('#indexOf()', function () {
-//     it('should return -1 when the value is not present', function () {
-//       assert.equal(-1, [1, 2, 3].indexOf(5));
-//       assert.equal(-1, [1, 2, 3].indexOf(0));
-//     })
-//   })
-// });
-
-
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-// const vscode = require('vscode');
-// const myExtension = require('../extension');
-
-// Defines a Mocha test suite to group tests of similar kind together
-// suite("Extension Tests", function () {
-
-//   // Defines a Mocha unit test
-//   test("Something 1", function () {
-//     assert.equal(-1, [1, 2, 3].indexOf(5));
-//     assert.equal(-1, [1, 2, 3].indexOf(8));
-//   });
-// });
-
 
 // function doRemoteCmd(rmt) {
 //   rmt.connect(host_config_, () => {
