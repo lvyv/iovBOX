@@ -5,6 +5,7 @@ let path_ = require("path");
 let rmt1 = new ssh2_();
 let host_config_ = rmt1.initConfigSync(fs_, "ssh2.cfg");
 let files = rmt1.getAllFiles(fs_, path_, host_config_.localPath, host_config_.exclude);
+let num = files.length, n_up = 0;
 
 const promise = Promise.resolve('start');
 promise
@@ -21,12 +22,13 @@ promise
                 .then(result => {
                     return rmt1.uploadFile(element, path_.posix.join(rpath, path_.basename(element)));
                 })
-                .then(result => { console.log(result) })
+                .then(result => { console.log(result);n_up++; })
                 .catch(error => { console.log(error) })
         });
     })
     .catch(error => { console.log(error) });
 
+    //yield 12;
 /*
 
 */
