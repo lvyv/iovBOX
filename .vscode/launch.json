@@ -35,7 +35,7 @@
             "type": "node",
             "request": "launch",
             "name": "启动程序",
-            "program": "${workspaceFolder}/src/iovBox-httpsvr.js"
+            "program": "${workspaceFolder}/example/uploadFiles.js"
         }
     ]
 }
