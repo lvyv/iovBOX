@@ -151,9 +151,12 @@ SSH2UTILS.prototype.uploadFile = function (localPath, remotePath, then) {
 					sftp.fastPut(localPath, remotePath, function (err) {
 						sftp.end();
 						if (err)
+						{
+							err.message = err.message + ":" + remotePath;
 							reject(err);
-						else
-							resolve('upload ok');
+						}
+							else
+							resolve('uploaded:' + remotePath);
 					});
 				}
 			});
