@@ -71,7 +71,9 @@ server.listen(1123);
 
 var siofu = require("socketio-file-upload");
 //var terminate = require('terminate');
-const { spawn } = require('child_process');
+//const { spawn } = require('child_process');
+const spawn = require('child_process').spawn;
+const fork = require('child_process').fork;
 
 //WebSocket连接监听
 io.on('connection', function (socket) {
@@ -108,12 +110,13 @@ io.on('connection', function (socket) {
 		debugbrk("cmd:%s, f:%s", cmdp.cmd, cmdp.fname);
 		switch(cmdp.cmd){
 			case "run":
-			  
-              var subprocess = spawn('node', ['./jsstartup/' + cmdp.fname], {
+			  if(_ET_GLOBAL.SUBPROC_ID) _ET_GLOBAL.SUBPROC_ID.kill();;
+              /*var subprocess = spawn('node', ['./jsstartup/' + cmdp.fname], {
                 detached: true,
                 stdio: 'ignore'
-              }); //process.argv[0]
-
+              }); */  //process.argv[0]
+            
+              var subprocess = fork('./jsstartup/' + cmdp.fname, {stdio: 'ignore'});
               subprocess.unref();
 	          _ET_GLOBAL.SUBPROC_ID = subprocess;
 			break;
@@ -129,6 +132,7 @@ io.on('connection', function (socket) {
                    console.log('terminate done'); 
                  }
                });*/
+			   _ET_GLOBAL.SUBPROC_ID = null;
 			}
 			break;
 		}
