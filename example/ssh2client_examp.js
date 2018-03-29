@@ -6,7 +6,8 @@ var server = JSON.parse(fs.readFileSync("ssh2.cfg_template"));
 conn.on('ready', function() {
     console.log(server['host'] + ' ready!\n');
     //var cmd = 'ls -lah';
-    var cmd = 'killall node';
+    //var cmd = 'killall node';
+    var cmd = 'node /root/iovBOX/broker.js &';
     conn.exec(cmd, function(err, stream) {
         if (err) throw err;
         stream.on('data', function(data, stderr) {
