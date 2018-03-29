@@ -1,6 +1,14 @@
 ﻿/**
  * @file 实现开发环境下远程访问E515,E529盒子同步文件和执行命令封装
- *		 
+ * 
+ *		ssh2's exec() is typically for executing one-liner commands, 
+ *		so it does not persist "shell state" between conn.exec() 
+ *		calls (e.g. working directory, etc.). You should also be 
+ *		aware of possible limits by your SSH server has set up as
+ *		far as how many simultaneous shell/exec requests are allowed
+ *		per connection. I think the default limit for this on 
+ *		OpenSSH's server is 10.
+ *
  *	启动格式：被应用程序调用
  *
  *	文件名			:ssh2promise.js	

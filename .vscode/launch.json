@@ -23,19 +23,19 @@
         {
             "type": "node",
             "request": "attach",
-            "name": "192.168.75.130:9229",
+            "name": "远程调试（75.130）",
             "address": "192.168.75.130",
             "port": 9229,
             "sourceMaps": false,
             "restart": true,
             "localRoot": "${workspaceFolder}",
-            "remoteRoot": "/home/lvyu/node-6.11.3/"
+            "remoteRoot": "/home/lvyu/iovBOX/"
         },
         {
             "type": "node",
             "request": "launch",
             "name": "启动程序",
-            "program": "${workspaceFolder}/example/uploadFiles.js"
+            "program": "${workspaceFolder}/example/remoteDebug.js"
         }
     ]
 }
