@@ -7,8 +7,8 @@ conn.on('ready', function() {
     console.log(server['host'] + ' ready!\n');
     //var cmd = 'ls -lah';
     //var cmd = 'killall node';
-    var cmd = 'node /root/iovBOX/broker.js &';
-    conn.exec(cmd, function(err, stream) {
+    var cmd = 'killall node;node /root/iovBOX/broker.js &';
+    /*conn.exec(cmd, function(err, stream) {
         if (err) throw err;
         stream.on('data', function(data, stderr) {
             if (stderr)
@@ -19,6 +19,25 @@ conn.on('ready', function() {
             console.log('Exited with code ' + code);
             conn.end();
         });
+    });*/
+    conn.shell(function(err, stream) {
+        if (err) throw err;
+        stream.on('exit', function(code, signal) {
+            console.log('Exited with code ' + code);
+            conn.end();
+        }).on('close', function() {
+            console.log('Stream :: close');
+            conn.end();
+        }).on('data', function(data) {
+            console.log('STDOUT2: ' + data);
+        }).stderr.on('data', function(data) {
+            console.log('STDERR2: ' + data);
+        });
+
+        stream.write('killall node\n');
+        stream.write('cd iovBOX\n');
+        stream.write('nohup node broker.js&\n');
+        stream.end('exit\n');
     });
 
 }).on('error', function(err) {
