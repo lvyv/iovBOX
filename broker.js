@@ -14,54 +14,54 @@
  *	01		17.10.26	修改×××
  */
 console.log('broker start..');
-var url  = require("url"),
-	fs=require("fs"),
-	http=require("http"),
-	path = require("path"),
-	handlers = require("./protocol_handler.js");
-	_ET_GLOBAL = require("./top.js");
+var url = require("url"),
+    fs = require("fs"),
+    http = require("http"),
+    path = require("path"),
+    handlers = require("./protocol_handler.js");
+_ET_GLOBAL = require("./top.js");
 var debugbrk = require("./iovdebug.js").getDebug('broker');
-var __dirname = ".";
+//var __dirname = ".";
 
 function handle_request(req, res) {
-	debugbrk('url:%s', req.url);
+    debugbrk('url:%s', req.url);
     debugbrk('%s', url.parse(req.url).pathname);
-    var pathname=__dirname + url.parse(req.url).pathname;
-    if (pathname.charAt(pathname.length-1)==="/"){
-        pathname+='broker.htm';
+    var pathname = __dirname + url.parse(req.url).pathname;
+    if (pathname.charAt(pathname.length - 1) === "/") {
+        pathname += 'broker.htm';
     }
-    var exists = fs.existsSync(pathname);//,function(exists){
-    if(exists){
-		switch(path.extname(pathname)){
-			case ".html":
-			case ".htm":
-				res.writeHead(200, {"Content-Type": "text/html"});
-				break;
-			case ".js":
-				res.writeHead(200, {"Content-Type": "text/javascript"});
-				break;
-			case ".css":
-				res.writeHead(200, {"Content-Type": "text/css"});
-				break;
-			case ".gif":
-				res.writeHead(200, {"Content-Type": "image/gif"});
-				break;
-			case ".jpg":
-				res.writeHead(200, {"Content-Type": "image/jpeg"});
-				break;
-			case ".png":
-				res.writeHead(200, {"Content-Type": "image/png"});
-				break;
-			default:
-				res.writeHead(200, {"Content-Type": "application/octet-stream"});
-		}
-		fs.readFile(pathname,function (err,data){
-			res.end(data);
-		});
-	} else {
-		res.writeHead(404, {"Content-Type": "text/html"});
-		res.end("<h1>404 Not Found</h1>");
-	};
+    var exists = fs.existsSync(pathname); //,function(exists){
+    if (exists) {
+        switch (path.extname(pathname)) {
+            case ".html":
+            case ".htm":
+                res.writeHead(200, { "Content-Type": "text/html" });
+                break;
+            case ".js":
+                res.writeHead(200, { "Content-Type": "text/javascript" });
+                break;
+            case ".css":
+                res.writeHead(200, { "Content-Type": "text/css" });
+                break;
+            case ".gif":
+                res.writeHead(200, { "Content-Type": "image/gif" });
+                break;
+            case ".jpg":
+                res.writeHead(200, { "Content-Type": "image/jpeg" });
+                break;
+            case ".png":
+                res.writeHead(200, { "Content-Type": "image/png" });
+                break;
+            default:
+                res.writeHead(200, { "Content-Type": "application/octet-stream" });
+        }
+        fs.readFile(pathname, function(err, data) {
+            res.end(data);
+        });
+    } else {
+        res.writeHead(404, { "Content-Type": "text/html" });
+        res.end("<h1>404 Not Found</h1>");
+    };
 }
 
 // Loading socket.io
@@ -71,57 +71,60 @@ server.listen(1123);
 
 var siofu = require("socketio-file-upload");
 //var terminate = require('terminate');
-const { spawn } = require('child_process');
+//const { spawn } = require('child_process');
+const spawn = require('child_process').spawn;
+const fork = require('child_process').fork;
 
 //WebSocket连接监听
-io.on('connection', function (socket) {
-	// 构造客户端对象	
-	var client = {
-		name:false,
-		time:false,
-		token:0,
-		color:getColor(),
-		l_sock:socket,
-		w_sock:null
-	};
-	var local_port = socket.request.connection.localPort;
-	//console.log(local_port);
-	
-	// 对ctrl channel事件的监听
-	socket.on(_ET_GLOBAL.CTL_CHANNEL_IN, function(data) {
-		// 发送反馈
-		if(!handlers.ctl_handle(data, client, socket))
-			socket.disconnect(true);	
-		console.log(client);
-	});
-	//proxy Left channel event：proxy data forward
-	socket.on(_ET_GLOBAL.PROXY_LEFT_IN,function(data) {
-		console.log("broker.js:" + data);
-		debugbrk("call proxy");
-		if(!handlers.proxy_handle(data, client, socket))
-			socket.disconnect(true);
-	});
+io.on('connection', function(socket) {
+    // 构造客户端对象	
+    var client = {
+        name: false,
+        time: false,
+        token: 0,
+        color: getColor(),
+        l_sock: socket,
+        w_sock: null
+    };
+    var local_port = socket.request.connection.localPort;
+    //console.log(local_port);
 
-    socket.on(_ET_GLOBAL.PROXY_COMMAND,function(data) {
-		debugbrk("proxy cmd:%o", data);
-		var cmdp = JSON.parse(data);
-		debugbrk("cmd:%s, f:%s", cmdp.cmd, cmdp.fname);
-		switch(cmdp.cmd){
-			case "run":
-			  
-              var subprocess = spawn('node', ['./jsstartup/' + cmdp.fname], {
-                detached: true,
-                stdio: 'ignore'
-              }); //process.argv[0]
+    // 对ctrl channel事件的监听
+    socket.on(_ET_GLOBAL.CTL_CHANNEL_IN, function(data) {
+        // 发送反馈
+        if (!handlers.ctl_handle(data, client, socket))
+            socket.disconnect(true);
+        console.log(client);
+    });
+    //proxy Left channel event：proxy data forward
+    socket.on(_ET_GLOBAL.PROXY_LEFT_IN, function(data) {
+        console.log("broker.js:" + data);
+        debugbrk("call proxy");
+        if (!handlers.proxy_handle(data, client, socket))
+            socket.disconnect(true);
+    });
 
-              subprocess.unref();
-	          _ET_GLOBAL.SUBPROC_ID = subprocess;
-			break;
-			case "terminate":
-			if(_ET_GLOBAL.SUBPROC_ID){
-				//child.stdin.pause();
-				_ET_GLOBAL.SUBPROC_ID.kill();
-			  /*terminate(_ET_GLOBAL.SUBPROC_ID, function (err) {
+    socket.on(_ET_GLOBAL.PROXY_COMMAND, function(data) {
+        debugbrk("proxy cmd:%o", data);
+        var cmdp = JSON.parse(data);
+        debugbrk("cmd:%s, f:%s", cmdp.cmd, cmdp.fname);
+        switch (cmdp.cmd) {
+            case "run":
+                if (_ET_GLOBAL.SUBPROC_ID) _ET_GLOBAL.SUBPROC_ID.kill();;
+                /*var subprocess = spawn('node', ['./jsstartup/' + cmdp.fname], {
+                  detached: true,
+                  stdio: 'ignore'
+                }); */ //process.argv[0]
+
+                var subprocess = fork('./jsstartup/' + cmdp.fname, { stdio: 'ignore' });
+                subprocess.unref();
+                _ET_GLOBAL.SUBPROC_ID = subprocess;
+                break;
+            case "terminate":
+                if (_ET_GLOBAL.SUBPROC_ID) {
+                    //child.stdin.pause();
+                    _ET_GLOBAL.SUBPROC_ID.kill();
+                    /*terminate(_ET_GLOBAL.SUBPROC_ID, function (err) {
                 if (err) {  
                  console.log("Oopsy: " + err);  
                 }
@@ -129,17 +132,18 @@ io.on('connection', function (socket) {
                    console.log('terminate done'); 
                  }
                });*/
-			}
-			break;
-		}
-		
-	});
+                    _ET_GLOBAL.SUBPROC_ID = null;
+                }
+                break;
+        }
+
+    });
 
     //监听出退事件
-    socket.on('disconnect', function () {  
-      console.log(client.name + ' Disconnect.');
+    socket.on('disconnect', function() {
+        console.log(client.name + ' Disconnect.');
     });
-	var uploader = new siofu();
+    var uploader = new siofu();
     uploader.dir = "./jsstartup";
     uploader.listen(socket);
 });
@@ -147,10 +151,11 @@ io.on('connection', function (socket) {
 
 
 
-var getColor=function(){
-  var colors = ['aliceblue','antiquewhite','aqua','aquamarine','pink','red','green',
-                'orange','blue','blueviolet','brown','burlywood','cadetblue'];
-  return colors[Math.round(Math.random() * 10000 % colors.length)];
+var getColor = function() {
+    var colors = ['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'pink', 'red', 'green',
+        'orange', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue'
+    ];
+    return colors[Math.round(Math.random() * 10000 % colors.length)];
 };
 
 /**
