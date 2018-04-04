@@ -1,0 +1,5 @@
+1、下载CANBabel-1.3.jar,地址https://github.com/julietkilo/CANBabel, 选择Download
+ZIP
+2、安装好JDk环境后，运行
+java -jar CANBabel-1.3.jar
+3、在CANBabel启动成功后，添加需要转换的dbc文件，转换即可

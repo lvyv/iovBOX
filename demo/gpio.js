@@ -1,4 +1,4 @@
-//define(gpio_dbus, () => {
+//AMD define(gpio_dbus,[], () => {
 var dbus = require('dbus-native');
 //var conn = dbus.createConnection();
 const systemBus = dbus.systemBus();
@@ -24,45 +24,33 @@ var dbus_input_json={
 		'type': dbus.messageType.methodCall
 };
 
-function matchSig(err, value)
+function requestService(value)
 {
-	try {
-		if(err) {
-			throw new Error(`addMatch "${signame}" failed: "${err}"`);
-		}
-		console.log("init gpio OK!");
-	} catch(error) {
-		console.log(error);
-	}
-}
-
-
-function requestService(e, retCode)
-{
+	var proc = new Promise((resolve, reject) => {
+		systemBus.requestName(value, 0x4, (e, retCode) => {
 		// Return code 0x1 means we successfully had the name
-		if(retCode === 1) {
-			systemBus.addMatch('type=\'signal\', member=\'' + signame + '\'', (err, value) => {
-				matchSig(err,value);
-			});
-			return true;
-		} 
-		throw new Error(`Could not request service ,the error was: ["${e}","${retCode}"].`);
-		return false;
+			if(retCode === 1) {
+				systemBus.addMatch('type=\'signal\', member=\'' + signame + '\'', (err, value) => {
+					try {
+						if(err) {
+							reject(err);
+						}
+						else{
+							resolve(value);
+						}
+					} catch(error) {
+						reject(error);
+					}
+				});
+			}else{
+				reject(e);
+			}
+		});
+	})
+	return proc;
 }
 
-
-
-
-function start(allCallBack)
-{
-	systemBus.requestName(serviceName, 0x4, (e, retCode) => {
-		if(requestService(e,retCode))
-		{
-			allCallBack();
-		}
-	});
-}
-
+var proc = requestService(serviceName);
 
 function onInputChange(inputCallBack)
 {
@@ -72,51 +60,60 @@ function onInputChange(inputCallBack)
 	});
 }
 
-
 function setLow(channel, outputCallBack)
 {
-	dbus_output_json['body'][0]=channel;
-	dbus_output_json['body'][1]='Low';
-	systemBus.invoke(dbus_output_json, (err, res) => {
-		if(err)
-		{
-			throw new Error(`set gpio channel"${channel}" output Low error!`);
-		}
-		outputCallBack(res);
+	proc.then(()=>{
+		dbus_output_json['body'][0]=channel;
+		dbus_output_json['body'][1]='Low';
+		systemBus.invoke(dbus_output_json, (err, res) => {
+			if(err)
+			{
+				throw new Error(`set gpio channel"${channel}" output Low error!`);
+			}else{
+				outputCallBack(res);
+			}
+		});
 	});
+	return;
 }
-
 
 
 function setHigh(channel, outputCallBack)
 {
-	dbus_output_json['body'][0]=channel;
-	dbus_output_json['body'][1]='Hi';
-	systemBus.invoke(dbus_output_json, (err, res) => {
-		if(err)
-		{
-			throw new Error(`set gpio channel"${channel}" output High error!`);
-		}
-		//do something
-		outputCallBack(res);
+	proc.then(()=>{
+		dbus_output_json['body'][0]=channel;
+		dbus_output_json['body'][1]='Hi';
+		systemBus.invoke(dbus_output_json, (err, res) => {
+			if(err)
+			{
+				throw new Error(`set gpio channel"${channel}" output High error!`);
+			}else{
+				//do something
+				outputCallBack(res);
+			}
+		});
 	});
 }
 
 function getInput(inputCallback)
 {
-	systemBus.invoke(dbus_input_json, (err, res) => {
+	proc.then(()=>{
+		systemBus.invoke(dbus_input_json, (err, res) => {
 		if(err)
 		{
 			throw new Error(`get gpio input value error!`);
+		}else{
+			//do something
+			inputCallback(res);
 		}
-		//do something
-		inputCallback(res);
+	 	});
 	});
+	return;
 }
 
-module.exports.start = start;
 module.exports.setHigh = setHigh;
 module.exports.setLow = setLow;
 module.exports.getInput = getInput;
 module.exports.onInputChange = onInputChange;
+
 //});
