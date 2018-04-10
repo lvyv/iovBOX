@@ -1,4 +1,4 @@
-var gpio = require('./gpio.js');
+var gpio = require('../dbus/gpio.js');
 
 
 gpio.onInputChange((res) =>{

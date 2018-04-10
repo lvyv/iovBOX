@@ -6,7 +6,7 @@ const serviceName = 'et.e52x.main';
 const gpio_dbus_name = 'et.e52x.gpio';
 const gpio_dbus_path= '/' + gpio_dbus_name.replace(/\./g, '/');
 const signame ='change';
-var dbus_output_json={
+var dbus_conf_json={
 		'path': '/et/e52x/gpio',
 		'destination': 'et.e52x.gpio',
 		'interface': 'et.e52x.gpio',
@@ -24,6 +24,13 @@ var dbus_input_json={
 		'type': dbus.messageType.methodCall
 };
 
+/**
+ * request service and later register signal service 
+ * initial proc
+ * 
+ * @param {any} value 
+ * @returns 
+ */
 function requestService(value)
 {
 	var proc = new Promise((resolve, reject) => {
@@ -52,6 +59,12 @@ function requestService(value)
 
 var proc = requestService(serviceName);
 
+/**
+ * while INPUT IO changed , trigger input call back ,for value is 
+ * {IO1 IO2 IO3 IO4 ACC}
+ *  
+ * @param {any} inputCallBack 
+ */
 function onInputChange(inputCallBack)
 {
     var signalFullName = systemBus.mangle(gpio_dbus_path, gpio_dbus_name, signame);
@@ -60,12 +73,25 @@ function onInputChange(inputCallBack)
 	});
 }
 
+/**
+ * set the certain channel gpio to low.
+ * 
+ * @param {uint} channel for channel id 0 or 1.
+ * @param {function} outputCallBack  callback after set low is right
+ * @returns 
+ */
 function setLow(channel, outputCallBack)
 {
 	proc.then(()=>{
-		dbus_output_json['body'][0]=channel;
-		dbus_output_json['body'][1]='Low';
-		systemBus.invoke(dbus_output_json, (err, res) => {
+		if(dbus_conf_json.body.length==1)
+        {
+            dbus_conf_json.body.splice(1,0,0);
+        }
+		dbus_conf_json['member']='output';
+		dbus_conf_json['signature']='us';
+		dbus_conf_json['body'][0]=channel;
+		dbus_conf_json['body'][1]='Low';
+		systemBus.invoke(dbus_conf_json, (err, res) => {
 			if(err)
 			{
 				throw new Error(`set gpio channel"${channel}" output Low error!`);
@@ -78,12 +104,24 @@ function setLow(channel, outputCallBack)
 }
 
 
+/**
+ * set the certain channel gpio to high.
+ * 
+ * @param {any} channel  for channel id 0 to 1.
+ * @param {any} outputCallBack  callback after set high is right 
+ */
 function setHigh(channel, outputCallBack)
 {
 	proc.then(()=>{
-		dbus_output_json['body'][0]=channel;
-		dbus_output_json['body'][1]='Hi';
-		systemBus.invoke(dbus_output_json, (err, res) => {
+		if(dbus_conf_json.body.length==1)
+        {
+            dbus_conf_json.body.splice(1,0,0);
+        }
+		dbus_conf_json['member']='output';
+		dbus_conf_json['signature']='us';
+		dbus_conf_json['body'][0]=channel;
+		dbus_conf_json['body'][1]='Hi';
+		systemBus.invoke(dbus_conf_json, (err, res) => {
 			if(err)
 			{
 				throw new Error(`set gpio channel"${channel}" output High error!`);
@@ -95,25 +133,55 @@ function setHigh(channel, outputCallBack)
 	});
 }
 
+/**
+ * get current IO state and  callback with value
+ * {IO1 IO2 IO3 IO4 ACC}
+ * 
+ * @param {function} inputCallback 
+ * @returns 
+ */
 function getInput(inputCallback)
 {
 	proc.then(()=>{
 		systemBus.invoke(dbus_input_json, (err, res) => {
-		if(err)
-		{
-			throw new Error(`get gpio input value error!`);
-		}else{
-			//do something
-			inputCallback(res);
-		}
+			if(err)
+			{
+				throw new Error(`get gpio input value error!`);
+			}else{
+				//do something
+				inputCallback(res);
+			}
 	 	});
 	});
 	return;
+}
+
+function setDebugLevel(level, outputCallBack)
+{
+    proc.then(()=>{
+		if(dbus_conf_json.body.length==2)
+        {
+            dbus_conf_json.body.splice(1,1);
+        }
+        dbus_conf_json['member'] = 'debug_level';
+        dbus_conf_json['signature'] = 'u';
+        dbus_conf_json['body'][0]= level;  
+        systemBus.invoke(dbus_conf_json, (err, res) => {
+            if(err)
+            {
+                throw new Error(`set imu debug level "${level}" error!`);
+            }else{
+                outputCallBack(res);
+            }
+        });
+    });
+    return;
 }
 
 module.exports.setHigh = setHigh;
 module.exports.setLow = setLow;
 module.exports.getInput = getInput;
 module.exports.onInputChange = onInputChange;
+module.exports.setDebugLevel = setDebugLevel;
 
 //});
