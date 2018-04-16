@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NetworkDefinition xmlns="http://kayak.2codeornot2code.org/1.0">
+    <Document name="test.dbc" date="Thu Mar 29 12:31:10 CST 2018">Converted with CANBabel (https://github.com/julietkilo/CANBabel)</Document>
+    <Bus name="Private">
+        <Message id="0xF6" name="EMCY_118" length="8">
+            <Signal length="8" name="ManufacturerSpecific4" offset="16">
+                <Consumer>
+                    <NodeRef id="Vector__XXX"/>
+                </Consumer>
+                <Value slope="1.1" intercept="0.44" unit="unit" min="234.4" max="4546.0"/>
+                <LabelSet>
+                    <Label value="0" name="Bootup"/>
+                    <Label value="4" name="Stopped"/>
+                    <Label value="5" name="Operational"/>
+                    <Label value="127" name="PreOperational"/>
+                </LabelSet>
+            </Signal>
+            <Signal length="8" name="ManufacturerSpecific3" offset="8">
+                <Consumer>
+                    <NodeRef id="Vector__XXX"/>
+                </Consumer>
+                <Value unit="unit C" max="0.0"/>
+                <LabelSet>
+                    <Label value="0" name="Bootup"/>
+                    <Label value="4" name="Stopped"/>
+                    <Label value="5" name="Operational"/>
+                    <Label value="127" name="PreOperational"/>
+                </LabelSet>
+            </Signal>
+            <Signal length="8" name="ManufacturerSpecific2" offset="0">
+                <Consumer>
+                    <NodeRef id="Vector__XXX"/>
+                </Consumer>
+                <Value unit="kpa" max="0.0"/>
+            </Signal>
+        </Message>
+    </Bus>
+</NetworkDefinition>

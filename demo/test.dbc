@@ -1,0 +1,6 @@
+BO_ 246 EMCY_118: 8 Vector__XXX
+ SG_ ManufacturerSpecific4 : 16|8@1+ (1.1,0.44) [234.4|4546] "unit" Vector__XXX
+ SG_ ManufacturerSpecific3 : 8|8@1+ (1,0) [0|0] "unit C" Vector__XXX
+ SG_ ManufacturerSpecific2 : 0|8@1+ (1,0) [0|0] "kpa" Vector__XXX
+VAL_ 246 ManufacturerSpecific4 127 "PreOperational" 5 "Operational" 4 "Stopped" 0 "Bootup" ;
+VAL_ 246 ManufacturerSpecific3 127 "PreOperational" 5 "Operational" 4 "Stopped" 0 "Bootup" ;
