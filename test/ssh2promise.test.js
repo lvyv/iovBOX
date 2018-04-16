@@ -1,8 +1,11 @@
-let assert_ = require("assert");
-let assertP_ = require("power-assert");
+//let assertB_ = require("assert");
+let assert_ = require("power-assert");
 let ssh2_ = require("../src/ssh2promise").SSH2UTILS;
 let fs_ = require("fs");
 let path_ = require("path");
+
+['log','warn','error'].forEach(a=>{let b=console[a];console[a]=(...c)=>{try{throw new Error}catch(d){b.apply(console,[d.stack.split('\n')[2].trim().substring(3).replace(__dirname,'').replace(/\s\(./,' at ').replace(/\)/,''),'\n',...c])}}});
+console.log("hllo");
 
 function shouldRejected(promise) {
   return {
@@ -42,7 +45,7 @@ describe('A Suite: Configuration read Function Sets', function () {
         })
       });
       rmt_tt.initConfig(fs_, "ssh2.cfg", (err, config) => {
-        assertP_(config == null);
+        assert_(config == null);
         done();
       });
     });
@@ -55,7 +58,7 @@ describe('A Suite: Configuration read Function Sets', function () {
         console.log(err);
       }
       rmt_tt.initConfig(fs_, "ssh2.cfg", (err, config) => {
-        assertP_(config != null);
+        assert_(config != null);
         done();
       });
     });
@@ -89,14 +92,14 @@ describe('B Suite: SSH Function Sets', function () {
     it('1# connect function by wrong key', function () {
       let newp = Promise.resolve().then(result => { return rmt_t1.connect(svr_cfg1); });
       return shouldRejected(newp).catch(function (error) {
-        assertP_(error === 'error');
+        assert_(error === 'error');
       });
     });
 
     it('2# connect function with right key', function () {
       let newp = Promise.resolve().then(result => { return rmt_t2.connect(svr_cfg2); });
       return shouldFulfilled(newp).then(function (value) {
-        assertP_(value === 'ready');
+        assert_(value === 'ready');
       });
     });
 
