@@ -1,13 +1,11 @@
 let ssh2_ = require("../src/ssh2promise").SSH2UTILS;
 let fs_ = require("fs");
-let path_ = require("path");
 
 let rmt1 = new ssh2_();
 let host_config_ = rmt1.initConfigSync(fs_, "ssh2.cfg");
 //let cmd_kill = "killall -9 node";
 //let cmd_cd = "cd /home/lvyu/iovBOX";
-let cdPrjRoot = "cd " + path_.posix.join(host_config_.remotePath, path_.basename(host_config_.localPath));
-let cmd_node = cdPrjRoot + "\nkillall -9 node\n../bin/node --inspect=192.168.75.130:9229 broker.js\n";
+let cmd_node = "cd ~/iovBOX\nkillall -9 node\nnode --inspect=192.168.75.130:9229 broker.js\n";
 
 const promise = Promise.resolve('start');
 promise
