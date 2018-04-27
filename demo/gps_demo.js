@@ -1,10 +1,18 @@
 var gps = require('../dbus/gps.js');
 
-gps.onReport((res)=>{
-	console.log(res.toString());
+gps.onReportNMEA((res)=>{
+	console.log('report nmea :'+res.toString());
 })
 
-gps.setReportType(1,(res)=>{
+gps.onReportData((res)=>{
+	console.log('report data :'+res.toString());
+})
+
+gps.setReportEnable(1,(res)=>{
+	console.log(`set report enable! `);
+})
+
+gps.setReportType(2,(res)=>{
 	console.log(`set report type ${res}`);
 })
 
