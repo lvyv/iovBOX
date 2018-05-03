@@ -26,7 +26,7 @@ serialPort.on('data', function(data) {
     hexstr =  hexstr.toString("hex");  
     console.log('<-recv:\n' + hexstr);  
     serialPort.write(data, function(err, results) {  
-        console.log('err ' + err);  
-        console.log('results ' + results);  
+     // console.log('err ' + err);  
+     // console.log('results ' + results);  
     });  
 });  
