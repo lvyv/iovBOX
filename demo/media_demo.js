@@ -2,8 +2,18 @@ var media=require('../dbus/media.js');
 
 media.initCam(
     1,
+<<<<<<< HEAD
     'rtsp://192.168.84.10:554/user=uroot&password=e529xmedia&channel=1&stream=0.sdp?',
     '/media',
+=======
+<<<<<<< HEAD
+    'rtsp://192.168.84.10:554/user=uroot&password=e529xmedia&channel=1&stream=0.sdp?',
+    '/media',
+=======
+    'rtsp://admin:e529xmedia@10.10.100.55/Streaming/Channels/101',
+    '/media/mmcblk0p1',
+>>>>>>> bf4365f041df81f6c398cbd7edccfcfe7a5292b5
+>>>>>>> 4756dcdd78840c2279cd237f595ef14e2a14345d
     '',
     '',
     function(res){
@@ -12,6 +22,10 @@ media.initCam(
 
 media.getCamInfo((res)=>{
         console.log('get cam info:'+res);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 4756dcdd78840c2279cd237f595ef14e2a14345d
     });
     
 media.recordCam(0,
@@ -37,3 +51,9 @@ media.playFile('','',0,(res)=>{
     console.log('play file: '+res);
 });
 */
+<<<<<<< HEAD
+=======
+=======
+    });
+>>>>>>> bf4365f041df81f6c398cbd7edccfcfe7a5292b5
+>>>>>>> 4756dcdd78840c2279cd237f595ef14e2a14345d
