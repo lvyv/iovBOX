@@ -50,11 +50,19 @@
    function initCam(cnt, ipCam_1, path_1, ipCam_2, path_2, outputCallBack)
    {
         proc.then(()=>{
+<<<<<<< HEAD
             if(dbus_conf_json.body.length==1)
             {
                 dbus_conf_json.body.splice(0,0,0);
             }
             dbus_conf_json['member'] = 'media_init';
+=======
+            if(dbus_conf_json.body.length>1)
+            {
+                dbus_conf_json.body.splice(0,0,0,0);
+            }
+            dbus_conf_json['member'] = 'send';
+>>>>>>> bf4365f041df81f6c398cbd7edccfcfe7a5292b5
             dbus_conf_json['signature'] = '(ua(ussssss))';
             /* unkown body */
             dbus_conf_json['body'][0]= cnt;
@@ -65,6 +73,7 @@
             dbus_conf_json['body'][1][4]= path_1;
             dbus_conf_json['body'][1][5]= 'photo_in';
             dbus_conf_json['body'][1][6]= 'photo_out';
+<<<<<<< HEAD
             if(cnt > 1)
             {
                 dbus_conf_json['body'][1][7]= 2;
@@ -75,6 +84,16 @@
                 dbus_conf_json['body'][1][12]= 'photo_in';
                 dbus_conf_json['body'][1][13]= 'photo_out';
             }
+=======
+            dbus_conf_json['body'][2][0]= 2;
+            dbus_conf_json['body'][2][1]= ipCam_2;
+            dbus_conf_json['body'][2][2]= 'play_out';
+            dbus_conf_json['body'][2][3]= ipCam_2;
+            dbus_conf_json['body'][2][4]= path_2;
+            dbus_conf_json['body'][2][5]= 'photo_in';
+            dbus_conf_json['body'][2][6]= 'photo_out';
+
+>>>>>>> bf4365f041df81f6c398cbd7edccfcfe7a5292b5
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {

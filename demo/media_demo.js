@@ -2,8 +2,13 @@ var media=require('../dbus/media.js');
 
 media.initCam(
     1,
+<<<<<<< HEAD
     'rtsp://192.168.84.10:554/user=uroot&password=e529xmedia&channel=1&stream=0.sdp?',
     '/media',
+=======
+    'rtsp://admin:e529xmedia@10.10.100.55/Streaming/Channels/101',
+    '/media/mmcblk0p1',
+>>>>>>> bf4365f041df81f6c398cbd7edccfcfe7a5292b5
     '',
     '',
     function(res){
@@ -12,6 +17,7 @@ media.initCam(
 
 media.getCamInfo((res)=>{
         console.log('get cam info:'+res);
+<<<<<<< HEAD
     });
     
 media.recordCam(0,
@@ -37,3 +43,6 @@ media.playFile('','',0,(res)=>{
     console.log('play file: '+res);
 });
 */
+=======
+    });
+>>>>>>> bf4365f041df81f6c398cbd7edccfcfe7a5292b5
