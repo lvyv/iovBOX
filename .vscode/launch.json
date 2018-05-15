@@ -23,13 +23,13 @@
         {
             "type": "node",
             "request": "attach",
-            "name": "192.168.75.130:9229",
-            "address": "192.168.75.130",
+            "name": "192.168.84.86:9229",
+            "address": "192.168.84.86",
             "port": 9229,
             "sourceMaps": false,
             "restart": true,
             "localRoot": "${workspaceFolder}",
-            "remoteRoot": "/home/lvyu/node-6.11.3/"
+            "remoteRoot": "/home/uroot/"
         },
         {
             "type": "node",
