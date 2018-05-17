@@ -9,9 +9,9 @@ media.initCam(
     1,
     //'rtsp://192.168.84.10:554/user=uroot&password=e529xmedia&channel=1&stream=0.sdp?',
     'rtsp://admin:e529xmedia@10.10.100.55/Streaming/Channels/101',
-    '/data',
+    '/opt/tmp',
     'rtsp://admin:e529xmedia@10.10.100.55/Streaming/Channels/101',
-    '/data',
+    '/opt/tmp',
     function(res){
         console.log("init cam from: "+res);
     });
@@ -28,7 +28,7 @@ media.onStatusUpdate((res)=>{
         media.recordCam(1,
         //'rtsp://192.168.84.10:554/user=uroot&password=e529xmedia&channel=1&stream=0.sdp?',
         'rtsp://admin:e529xmedia@10.10.100.55/Streaming/Channels/101',
-        '/data',1,0,(res)=>{
+        '/opt/tmp',1,1,(res)=>{
             console.log('record Cam: '+res);
         });
     }
