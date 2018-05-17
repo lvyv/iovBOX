@@ -53,15 +53,9 @@
     function setColor(ledid, color, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length==1)
-            {
-                dbus_conf_json.body.splice(1,0,0);
-            }
-
             dbus_conf_json['member'] = 'setone';
             dbus_conf_json['signature'] = 'us';
-            dbus_conf_json['body'][0]= ledid;  
-            dbus_conf_json['body'][1]= color;  
+            dbus_conf_json['body']= [ledid,`${color}`];  
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -85,13 +79,9 @@
     function setDebugLevel(level, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length==2)
-            {
-                dbus_conf_json.body.splice(1,1);
-            }
             dbus_conf_json['member'] = 'debug_level';
             dbus_conf_json['signature'] = 'u';
-            dbus_conf_json['body'][0]= level;  
+            dbus_conf_json['body']= [level];  
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {

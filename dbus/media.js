@@ -69,7 +69,7 @@
                 }
             });
         }).catch((err)=>{
-            console
+            console.log(err);
         });
         return;
     }
@@ -95,19 +95,9 @@
     function recordCam(id, url, path, period, loop, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length!=6)
-            {
-                dbus_conf_json.body.splice(1,(dbus_conf_json.body.length-1));
-                dbus_conf_json.body.splice(0,0,0,0,0,0,0);
-            }
             dbus_conf_json['member'] = 'media_record';
             dbus_conf_json['signature'] = 'usssuu';
-            dbus_conf_json['body'][0]= id;
-            dbus_conf_json['body'][1]= 'start';
-            dbus_conf_json['body'][2]= url;
-            dbus_conf_json['body'][3]= path;
-            dbus_conf_json['body'][4]= period;
-            dbus_conf_json['body'][5]= loop;
+            dbus_conf_json['body']= [id,'start',`${url}`,`${path}`,period,loop];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -123,14 +113,9 @@
     function stopRecord(id, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length>1)
-            {
-                dbus_conf_json.body.splice(1,(dbus_conf_json.body.length-1));
-            }
             dbus_conf_json['member'] = 'media_record';
             dbus_conf_json['signature'] = 'us';
-            dbus_conf_json['body'][0]= id;
-            dbus_conf_json['body'][1]= 'stop';
+            dbus_conf_json['body']= [id, 'stop'];
            systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -146,18 +131,9 @@
     function playCam(id, url, path, time, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length!=5)
-            {
-                dbus_conf_json.body.splice(1,(dbus_conf_json.body.length-1));
-                dbus_conf_json.body.splice(0,0,0,0,0,0);
-            }
             dbus_conf_json['member'] = 'media_stream';
             dbus_conf_json['signature'] = 'usssu';
-            dbus_conf_json['body'][0]= id;
-            dbus_conf_json['body'][1]= 'start';
-            dbus_conf_json['body'][2]= url;
-            dbus_conf_json['body'][3]= path;
-            dbus_conf_json['body'][4]= time;
+            dbus_conf_json['body']= [id, 'start', `${url}`, `${path}`, time];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -173,14 +149,9 @@
     function stopPlay(id, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length>1)
-            {
-                dbus_conf_json.body.splice(1,(dbus_conf_json.body.length-1));
-            }
             dbus_conf_json['member'] = 'media_stream';
             dbus_conf_json['signature'] = 'us';
-            dbus_conf_json['body'][0]= id;
-            dbus_conf_json['body'][1]= 'stop';
+            dbus_conf_json['body']= [id, 'stop'];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -196,18 +167,9 @@
     function captureCam(id, url, path, num, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length!=5)
-            {
-                dbus_conf_json.body.splice(1,(dbus_conf_json.body.length-1));
-                dbus_conf_json.body.splice(0,0,0,0,0,0);
-            }
             dbus_conf_json['member'] = 'media_picture';
             dbus_conf_json['signature'] = 'usssu';
-            dbus_conf_json['body'][0]= id;
-            dbus_conf_json['body'][1]= 'start';
-            dbus_conf_json['body'][2]= url;
-            dbus_conf_json['body'][3]= path;
-            dbus_conf_json['body'][4]= num;
+            dbus_conf_json['body']= [id, 'start', `${url}`, `${path}`, num];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -224,17 +186,9 @@
     function playFile(path, url, time, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length!=4)
-            {
-                dbus_conf_json.body.splice(1,(dbus_conf_json.body.length-1));
-                dbus_conf_json.body.splice(0,0,0,0,0);
-            }
             dbus_conf_json['member'] = 'media_file_stream';
             dbus_conf_json['signature'] = 'sssu';
-            dbus_conf_json['body'][0]= 'start';
-            dbus_conf_json['body'][1]= path;
-            dbus_conf_json['body'][2]= url;
-            dbus_conf_json['body'][3]= time;
+            dbus_conf_json['body']= ['start', `${path}`, `${url}`, num];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -258,13 +212,9 @@
     function setDebugLevel(level, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length>1)
-            {
-                dbus_conf_json.body.splice(1,(dbus_conf_json.body.length-1));
-            }
             dbus_conf_json['member'] = 'debug_level';
             dbus_conf_json['signature'] = 'u';
-            dbus_conf_json['body'][0]= level;  
+            dbus_conf_json['body']= [level];  
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {

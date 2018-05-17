@@ -61,12 +61,8 @@
     {
         proc.then(()=>{
             dbus_conf_json['member'] = 'warn_info';
-            if(dbus_conf_json.body.length==2)
-            {
-                dbus_conf_json.body.splice(1,1);
-            }
             dbus_conf_json['signature'] = 'i';
-            dbus_conf_json['body'][0] = type;
+            dbus_conf_json['body'] = [type];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -91,13 +87,9 @@
     function getData(type, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length==2)
-            {
-                dbus_conf_json.body.splice(1,1);
-            }
             dbus_conf_json['member'] = 'get_data';
             dbus_conf_json['signature'] = 'i';
-            dbus_conf_json['body'][0] = type;
+            dbus_conf_json['body'] = [type];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -125,11 +117,6 @@
     function setData(type, data, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length==1)
-            {
-                dbus_conf_json.body.splice(1,0,0);
-            }
-
             dbus_conf_json['member'] = 'set_data';
             if(type > 0x1F)
             {
@@ -137,8 +124,7 @@
             }else{
                 dbus_conf_json['signature'] = 'ii';
             }
-            dbus_conf_json['body'][0]= type;  
-            dbus_conf_json['body'][1]= data;  
+            dbus_conf_json['body']= [type,data];  
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -162,13 +148,9 @@
     function setDebugLevel(level, outputCallBack)
     {
         proc.then(()=>{
-            if(dbus_conf_json.body.length==2)
-            {
-                dbus_conf_json.body.splice(1,1);
-            }
             dbus_conf_json['member'] = 'debug_level';
             dbus_conf_json['signature'] = 'u';
-            dbus_conf_json['body'][0]= level;  
+            dbus_conf_json['body']= [level];  
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {

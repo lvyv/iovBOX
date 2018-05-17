@@ -1,7 +1,7 @@
 var media=require('../dbus/media.js');
 
 media.initCam(
-    2,
+    1,
     //'rtsp://192.168.84.10:554/user=uroot&password=e529xmedia&channel=1&stream=0.sdp?',
     'rtsp://admin:e529xmedia@10.10.100.55/Streaming/Channels/101',
     '/media',

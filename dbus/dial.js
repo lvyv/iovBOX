@@ -138,14 +138,9 @@ function onSimStateChange(inputCallBack)
 function sendMessage(phone, msg, outputCallBack)
 {
 	proc.then(()=>{
-        if(dbus_conf_json.body.length==1)
-        {
-            dbus_conf_json.body.splice(0,0,0);
-        }
         dbus_conf_json['member'] = 'send';
         dbus_conf_json['signature'] = 'ss';
-		dbus_conf_json['body'][0]= phone;
-		dbus_conf_json['body'][1]= msg;
+		dbus_conf_json['body']= [`${phone}`,`${msg}`];
 		systemBus.invoke(dbus_conf_json, (err, res) => {
 			if(err)
 			{
@@ -214,14 +209,9 @@ function getList(outputCallBack)
 function delMessage(msgid, msgtype,outputCallBack)
 {
     proc.then(()=>{
-        if(dbus_conf_json.body.length==1)
-        {
-            dbus_conf_json.body.splice(0,0,0);
-        }
         dbus_conf_json['member'] = 'delete';
         dbus_conf_json['signature'] = 'uu';
-		dbus_conf_json['body'][0]= msgid;
-		dbus_conf_json['body'][1]= msgtype;
+		dbus_conf_json['body']= [msgid, msgtype];
 		systemBus.invoke(dbus_conf_json, (err, res) => {
 			if(err)
 			{
@@ -246,13 +236,9 @@ function delMessage(msgid, msgtype,outputCallBack)
 function setDebugLevel(level, outputCallBack)
 {
     proc.then(()=>{
-        if(dbus_conf_json.body.length==2)
-        {
-            dbus_conf_json.body.splice(1,1);
-        }
         dbus_conf_json['member'] = 'debug_level';
         dbus_conf_json['signature'] = 'u';
-        dbus_conf_json['body'][0]= level;  
+        dbus_conf_json['body']= [level];  
         systemBus.invoke(dbus_conf_json, (err, res) => {
             if(err)
             {

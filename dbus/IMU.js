@@ -70,7 +70,7 @@
         proc.then(()=>{
             dbus_conf_json['member'] = 'sample';
             dbus_conf_json['signature'] = 'u';
-            dbus_conf_json['body'][0]=sec;
+            dbus_conf_json['body']=[sec];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -95,7 +95,7 @@
         proc.then(()=>{
             dbus_conf_json['member'] = 'enable';
             dbus_conf_json['signature'] = 'b';
-            dbus_conf_json['body'][0]= enable;
+            dbus_conf_json['body']= [enable];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -120,7 +120,7 @@
         proc.then(()=>{
             dbus_conf_json['member'] = 'debug_level';
             dbus_conf_json['signature'] = 'u';
-            dbus_conf_json['body'][0]= level;  
+            dbus_conf_json['body']= [level];  
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {

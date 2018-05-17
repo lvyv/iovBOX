@@ -89,8 +89,7 @@ function setLow(channel, outputCallBack)
         }
 		dbus_conf_json['member']='output';
 		dbus_conf_json['signature']='us';
-		dbus_conf_json['body'][0]=channel;
-		dbus_conf_json['body'][1]='Low';
+		dbus_conf_json['body']=[channel,'Low'];
 		systemBus.invoke(dbus_conf_json, (err, res) => {
 			if(err)
 			{
@@ -119,8 +118,7 @@ function setHigh(channel, outputCallBack)
         }
 		dbus_conf_json['member']='output';
 		dbus_conf_json['signature']='us';
-		dbus_conf_json['body'][0]=channel;
-		dbus_conf_json['body'][1]='Hi';
+		dbus_conf_json['body']=[channel,'Hi'];
 		systemBus.invoke(dbus_conf_json, (err, res) => {
 			if(err)
 			{
@@ -165,7 +163,7 @@ function setDebugLevel(level, outputCallBack)
         }
         dbus_conf_json['member'] = 'debug_level';
         dbus_conf_json['signature'] = 'u';
-        dbus_conf_json['body'][0]= level;  
+        dbus_conf_json['body']= [level];  
         systemBus.invoke(dbus_conf_json, (err, res) => {
             if(err)
             {

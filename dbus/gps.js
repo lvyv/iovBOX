@@ -107,7 +107,7 @@
         proc.then(()=>{
             dbus_conf_json['member']='config';
             dbus_conf_json['signature']='i';
-            dbus_conf_json['body'][0]=type;
+            dbus_conf_json['body']=[type];
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
@@ -131,11 +131,11 @@
         proc.then(()=>{
             dbus_conf_json['member'] = 'enable';
             dbus_conf_json['signature'] = 'b';
-            dbus_conf_json['body'][0]= enable;  
+            dbus_conf_json['body']= [enable];  
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`set gps report enable "${level}" error!`);
+                    throw new Error(`set gps report enable "${enable}" error!`);
                 }else{
                     outputCallBack(res);
                 }
@@ -150,7 +150,7 @@
         proc.then(()=>{
             dbus_conf_json['member'] = 'debug_level';
             dbus_conf_json['signature'] = 'u';
-            dbus_conf_json['body'][0]= level;  
+            dbus_conf_json['body']= [level];  
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
