@@ -1,10 +1,10 @@
-//AMD define(dial_dbus,[], () => {
+//AMD define(media_dbus,[], () => {
     var dbus = require('dbus-native');
     //var conn = dbus.createConnection();
     const systemBus = dbus.systemBus();
     const serviceName = 'et.e52x.main';
-    const dial_dbus_name = 'et.e52x.media';
-    const dial_dbus_path= '/' + dial_dbus_name.replace(/\./g, '/');
+    const media_dbus_name = 'et.e52x.media';
+    const media_dbus_path= '/' + media_dbus_name.replace(/\./g, '/');
     var dbus_conf_json={
             'path': '/et/e52x/media',
             'destination': 'et.e52x.media',
@@ -35,8 +35,19 @@
         var proc = new Promise((resolve, reject) => {
             systemBus.requestName(value, 0x4, (e, retCode) => {
             // Return code 0x1 means we successfully had the name
-                if(retCode === 1) {
-                    resolve(retCode);
+                if(retCode === 1) { 
+                    systemBus.addMatch('type=\'signal\', member=\'status_update\'', (err, value) => {
+                    try {
+                        if(err) {
+                            reject(err);
+                        }
+                        else{
+                            resolve(value);
+                        }
+                    } catch(error) {
+                            reject(error);
+                    }
+                    });
                 }else{
                     reject(e);
                 }
@@ -47,6 +58,15 @@
     
     var proc = requestService(serviceName);
     
+    function onStatusUpdate(inputCallBack)
+    {
+        var signalFullName = systemBus.mangle(media_dbus_path, media_dbus_name, 'status_update');
+        systemBus.signals.on(signalFullName, (messageBody) => {
+            return inputCallBack(messageBody);
+        });
+    }
+
+
    function initCam(cnt, ipCam_1, path_1, ipCam_2, path_2, outputCallBack)
    {
         proc.then(()=>{
@@ -57,13 +77,13 @@
                 dbus_conf_json['body'] = [[1,[1,`${ipCam_1}`,'play_out',`${ipCam_1}`,`${path_1}`,'photo_in','photo_out']]];
             }
             else{
-                dbus_conf_json['signature'] = '(u(ussssssussssss))';
-                dbus_conf_json['body'] = [[1,[1,`${ipCam_1}`,'play_out',`${ipCam_1}`,`${path_1}`,'photo_in','photo_out',2,`${ipCam_2}`,'play_out',`${ipCam_2}`,`${path_2}`,'photo_in','photo_out']]];
+                dbus_conf_json['signature'] = '(u(ussssss)(ussssss))';
+                dbus_conf_json['body'] = [[2,[1,`${ipCam_1}`,'play_out',`${ipCam_1}`,`${path_1}`,'photo_in','photo_out'],[2,`${ipCam_2}`,'play_out',`${ipCam_2}`,`${path_2}`,'photo_in','photo_out']]];
             }
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`send ${content} to ${phone} error!`);
+                    throw new Error(`init cam error!`);
                 }else{
                     outputCallBack(res);
                 }
@@ -235,5 +255,6 @@
     module.exports.stopPlay = stopPlay;
     module.exports.captureCam = captureCam;
     module.exports.playFile = playFile;
+    module.exports.onStatusUpdate = onStatusUpdate;
     module.exports.setDebugLevel = setDebugLevel;
 //}    
