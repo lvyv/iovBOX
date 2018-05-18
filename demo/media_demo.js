@@ -1,40 +1,33 @@
+#!/usr/bin/node
 var media=require('../dbus/media.js');
+var app_config = require('./app_config.json');
 
 media.setDebugLevel(7,(res)=>{
     console.log('set debug level 7 and res is ' + res);
 });
 
-
-media.initCam(
-    1,
-    //'rtsp://192.168.84.10:554/user=uroot&password=e529xmedia&channel=1&stream=0.sdp?',
-    'rtsp://admin:e529xmedia@10.10.100.55/Streaming/Channels/101',
-    '/opt/tmp',
-    'rtsp://admin:e529xmedia@10.10.100.55/Streaming/Channels/101',
-    '/opt/tmp',
-    function(res){
-        console.log("init cam from: "+res);
-    });
+media.initCam(app_config.camera,function(res){
+    console.log("init cam from: "+res);
+});
 
 media.getCamInfo((res)=>{
-        console.log('get cam info:'+res);
-    });
+    console.log('get cam info: ' + JSON.stringify(res));
+});
 
-media.onStatusUpdate((res)=>{
-    console.log(res);
-    //record able
-    if(res[0][1][3] == 3 && res[0][1][4] == 0) 
-    {
-        media.recordCam(1,
-        //'rtsp://192.168.84.10:554/user=uroot&password=e529xmedia&channel=1&stream=0.sdp?',
-        'rtsp://admin:e529xmedia@10.10.100.55/Streaming/Channels/101',
-        '/opt/tmp',1,1,(res)=>{
-            console.log('record Cam: '+res);
-        });
+media.onStatusUpdate((event)=>{
+    console.log('status info arrive ' + JSON.stringify(event));
+    for (var i = 0; i < event.cam_count; ++i) {
+        if(event.cam_list[i].record_status == 3 && event.cam_list[i].record_code == 0)
+        {
+            media.recordCam(
+                event.cam_list[i].cam_index,
+                app_config.camera.cam_info[i].ipCam,
+                app_config.camera.cam_info[i].path,10,1,(res)=>{
+                console.log('record Cam: ' + res);
+            });
+        }
     }
 })
-
-   
 
 /*
 media.playCam(1,

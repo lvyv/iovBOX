@@ -1,0 +1,22 @@
+{
+  "camera" : {
+    "cam_info":[
+      {
+        "ipCam":"rtsp://admin:e529xmedia@192.168.199.83/Streaming/Channels/101",
+        "path":"/media/mmcblk0p1"
+      },
+      {
+        "ipCam":"rtsp://admin:e529xmedia@192.168.199.83/Streaming/Channels/102",
+        "path":"/media/mmcblk0p1"
+      },
+      {
+        "ipCam":"rtsp://admin:e529xmedia@192.168.199.83/Streaming/Channels/103",
+        "path":"/media/mmcblk0p1"
+      },
+      {
+        "ipCam":"rtsp://admin:e529xmedia@192.168.199.83/Streaming/Channels/101",
+        "path":"/media/mmcblk0p1"
+      }
+    ]
+  }
+}

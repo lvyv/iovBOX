@@ -62,28 +62,77 @@
     {
         var signalFullName = systemBus.mangle(media_dbus_path, media_dbus_name, 'status_update');
         systemBus.signals.on(signalFullName, (messageBody) => {
-            return inputCallBack(messageBody);
+            var event={
+                cam_count:messageBody[0][0]
+            };
+            if(event.cam_count != 0) {
+                event.cam_list = [];
+            }
+            for (var i = 0; i < messageBody[0][0]; ++i) {
+                var camera = {
+                    cam_index:messageBody[0][i+1][0],
+                    push_status:messageBody[0][i+1][1],
+                    push_code:messageBody[0][i+1][2],
+                    record_status:messageBody[0][i+1][3],
+                    record_code:messageBody[0][i+1][4]
+                }
+                event.cam_list[i] = camera;
+            }
+            return inputCallBack(event);
         });
     }
 
+    /**
+     * 
+     * @param {object} cam_config
+     * {
+     *     cam_info:[
+     *         {
+     *             ipCam:'',
+     *             path:''
+     *         },
+     *         {
+     *             ipCam:'',
+     *             path:''
+     *         },
+     *         {
+     *             ipCam:'',
+     *             path:''
+     *         }
+     *     ]
+     * } 
+     * @param {function} outputCallBack 
+     */
+    function initCam(cam_config, outputCallBack)
+    {
+        if (!cam_config.cam_info) {
+            outputCallBack(new Error('cam_info param error'));
+            return;
+        }
 
-   function initCam(cnt, ipCam_1, path_1, ipCam_2, path_2, outputCallBack)
-   {
+        if (cam_config.cam_info.length == 0) {
+            outputCallBack(new Error('warring cam number 0'));
+            return;
+        }
+
         proc.then(()=>{
             dbus_conf_json['member'] = 'media_init';
-            if(cnt == 1)
-            {
-                dbus_conf_json['signature'] = '(u(ussssss))';
-                dbus_conf_json['body'] = [[1,[1,`${ipCam_1}`,'play_out',`${ipCam_1}`,`${path_1}`,'photo_in','photo_out']]];
+            var cnt = cam_config.cam_info.length;
+            dbus_conf_json['signature'] = '(u';
+            dbus_conf_json['body'] = [ [cnt] ];
+            for( var i = 0; i < cnt; ++i ) {
+                var ipCam = cam_config.cam_info[i].ipCam;
+                var path = cam_config.cam_info[i].path;
+                var param = [i+1, ipCam, 'play_out', ipCam, path, 'photo_in', 'photo_out'];
+                dbus_conf_json['body'][0][i+1] = param;
+                dbus_conf_json['signature'] += '(ussssss)';
             }
-            else{
-                dbus_conf_json['signature'] = '(u(ussssss)(ussssss))';
-                dbus_conf_json['body'] = [[2,[1,`${ipCam_1}`,'play_out',`${ipCam_1}`,`${path_1}`,'photo_in','photo_out'],[2,`${ipCam_2}`,'play_out',`${ipCam_2}`,`${path_2}`,'photo_in','photo_out']]];
-            }
+            dbus_conf_json['signature'] += ')'
+            //console.log("dbus_conf_json: " + JSON.stringify(dbus_conf_json));
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`init cam error!`);
+                    outputCallBack(new Error(`init cam error!`));
                 }else{
                     outputCallBack(res);
                 }
@@ -118,6 +167,7 @@
             dbus_conf_json['member'] = 'media_record';
             dbus_conf_json['signature'] = 'usssuu';
             dbus_conf_json['body']= [id,'start',`${url}`,`${path}`,period,loop];
+            //console.log("dbus_conf_json: " + JSON.stringify(dbus_conf_json));
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
