@@ -3,11 +3,24 @@ var media=require('../dbus/media.js');
 var app_config = require('./app_config.json');
 
 media.setDebugLevel(7,(res)=>{
-    console.log('set debug level 7 and res is ' + res);
+    console.log('set debug ' + JSON.stringify(res));
 });
 
-media.initCam(app_config.camera,function(res){
-    console.log("init cam from: "+res);
+var config = {
+    cam_info:[]
+};
+
+for(var i = 0 ; i < app_config.camera.cam_info.length; ++i) {
+    var cam = {};
+    cam.ipCam = app_config.camera.cam_info[i].record_url;
+    cam.path = app_config.camera.cam_info[i].record_path;
+    cam.record_cycle = app_config.camera.cam_info[i].record_cycle;
+    cam.cycle = app_config.camera.cam_info[i].cycle;
+    config.cam_info[i] = cam;
+}
+
+media.initCam(config,function(res){
+    console.log("init cam: " + JSON.stringify(res));
 });
 
 media.getCamInfo((res)=>{
@@ -19,12 +32,26 @@ media.onStatusUpdate((event)=>{
     for (var i = 0; i < event.cam_count; ++i) {
         if(event.cam_list[i].record_status == 3 && event.cam_list[i].record_code == 0)
         {
+            console.log("cam index: " + event.cam_list[i].cam_index + " status normal, can record !!");
             media.recordCam(
                 event.cam_list[i].cam_index,
-                app_config.camera.cam_info[i].ipCam,
-                app_config.camera.cam_info[i].path,10,1,(res)=>{
-                console.log('record Cam: ' + res);
+                config.cam_info[i].ipCam,
+                config.cam_info[i].path,
+                config.cam_info[i].record_cycle,
+                config.cam_info[i].cycle,
+                function(res) {
+                console.log('record Cam: ' + JSON.stringify(res));
+                if(res.code == 0){
+                    //success
+                }
             });
+
+            // media.captureCam(
+            //     event.cam_list[i].cam_index,
+            //     app_config.camera.cam_info[i].ipCam,
+            //     app_config.camera.cam_info[i].path, 3, function(res){
+            //         console.log('capture Cam: ' + JSON.stringify(res));
+            // });
         }
     }
 })

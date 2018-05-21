@@ -68,7 +68,7 @@
             if(event.cam_count != 0) {
                 event.cam_list = [];
             }
-            for (var i = 0; i < messageBody[0][0]; ++i) {
+            for (var i = 0; i < event.cam_count; ++i) {
                 var camera = {
                     cam_index:messageBody[0][i+1][0],
                     push_status:messageBody[0][i+1][1],
@@ -106,12 +106,20 @@
     function initCam(cam_config, outputCallBack)
     {
         if (!cam_config.cam_info) {
-            outputCallBack(new Error('cam_info param error'));
+            var event = {
+                code:-1,
+                message:'cam_info param error'
+            }
+            outputCallBack(event);
             return;
         }
 
         if (cam_config.cam_info.length == 0) {
-            outputCallBack(new Error('warring cam number 0'));
+            var event = {
+                code:-1,
+                message:'warring cam number 0'
+            }
+            outputCallBack(event);
             return;
         }
 
@@ -128,17 +136,31 @@
                 dbus_conf_json['signature'] += '(ussssss)';
             }
             dbus_conf_json['signature'] += ')'
-            //console.log("dbus_conf_json: " + JSON.stringify(dbus_conf_json));
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    outputCallBack(new Error(`init cam error!`));
+                    var event = {
+                        code:-1,
+                        message:'media_init error!',
+                        error:err
+                    }
+                    outputCallBack(event);
                 }else{
-                    outputCallBack(res);
+                    var event = {
+                        code:0,
+                        message:'media_init success!',
+                        result:res
+                    }
+                    outputCallBack(event);
                 }
             });
         }).catch((err)=>{
-            console.log(err);
+            var event = {
+                code:-1,
+                message:'media_init exceptions!',
+                error:err
+            }
+            outputCallBack(event);
         });
         return;
     }
@@ -148,13 +170,36 @@
     {
         proc.then(()=>{
             dbus_out_json['member']='media_status';
-            systemBus.invoke(dbus_out_json, (err, res) => {
+            systemBus.invoke(dbus_out_json, (err, messageBody) => {
                 if(err)
                 {
-                    throw new Error(`get media_status info error!`);
+                    var event = {
+                        code:-1,
+                        message:'get media_status info error!',
+                        error:err
+                    }
+                    outputCallBack(event);
                 }else{
                     //do something
-                    outputCallBack(res);
+                    var event={
+                        code:0,
+                        message:'get media_status info success!',
+                        cam_count:messageBody[0]
+                    };
+                    if(event.cam_count != 0) {
+                        event.cam_list = [];
+                    }
+                    for (var i = 0; i < event.cam_count; ++i) {
+                        var camera = {
+                            cam_index:messageBody[i+1][0],
+                            push_status:messageBody[i+1][1],
+                            push_code:messageBody[i+1][2],
+                            record_status:messageBody[i+1][3],
+                            record_code:messageBody[i+1][4]
+                        }
+                        event.cam_list[i] = camera;
+                    }
+                    outputCallBack(event);
                 }
             });
         });
@@ -167,13 +212,24 @@
             dbus_conf_json['member'] = 'media_record';
             dbus_conf_json['signature'] = 'usssuu';
             dbus_conf_json['body']= [id,'start',`${url}`,`${path}`,period,loop];
-            //console.log("dbus_conf_json: " + JSON.stringify(dbus_conf_json));
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`start record cam_${id} error!`);
+                    var event = {
+                        code:-1,
+                        message:'start media_record fail!',
+                        cam_index:id,
+                        error:err
+                    }
+                    outputCallBack(event);
                 }else{
-                    outputCallBack(res);
+                    var event = {
+                        code:0,
+                        message:'start media_record success!',
+                        cam_index:id,
+                        result:res
+                    }
+                    outputCallBack(event);
                 }
             });
         });
@@ -189,9 +245,21 @@
            systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`stop record cam_${id} error!`);
+                    var event = {
+                        code:-1,
+                        message:'stop media_record fail!',
+                        cam_index:id,
+                        error:err
+                    }
+                    outputCallBack(event);
                 }else{
-                    outputCallBack(res);
+                    var event = {
+                        code:0,
+                        message:'stop media_record success!',
+                        cam_index:id,
+                        result:res
+                    }
+                    outputCallBack(event);
                 }
             });
         });
@@ -207,9 +275,21 @@
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`start play cam_${id} error!`);
+                    var event = {
+                        code:-1,
+                        message:'start media_stream fail!',
+                        cam_index:id,
+                        error:err
+                    }
+                    outputCallBack(event);
                 }else{
-                    outputCallBack(res);
+                    var event = {
+                        code:0,
+                        message:'start media_stream success!',
+                        cam_index:id,
+                        result:res
+                    }
+                    outputCallBack(event);
                 }
             });
         });
@@ -225,9 +305,21 @@
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`stop play cam_${id} error!`);
+                    var event = {
+                        code:-1,
+                        message:'stop media_stream fail!',
+                        cam_index:id,
+                        error:err
+                    }
+                    outputCallBack(event);
                 }else{
-                    outputCallBack(res);
+                    var event = {
+                        code:0,
+                        message:'stop media_stream success!',
+                        cam_index:id,
+                        result:res
+                    }
+                    outputCallBack(event);
                 }
             });
         });
@@ -243,9 +335,21 @@
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`capture cam_${id} error!`);
+                    var event = {
+                        code:-1,
+                        message:'media_picture fail!',
+                        cam_index:id,
+                        error:err
+                    }
+                    outputCallBack(event);
                 }else{
-                    outputCallBack(res);
+                    var event = {
+                        code:0,
+                        message:'media_picture success!',
+                        cam_index:id,
+                        result:res
+                    }
+                    outputCallBack(event);
                 }
             });
         });
@@ -262,9 +366,23 @@
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`play file ${path} to server ${url} error!`);
+                    var event = {
+                        code:-1,
+                        message:'media_file_stream fail!',
+                        path:path,
+                        url:url,
+                        error:err
+                    }
+                    outputCallBack(event);
                 }else{
-                    outputCallBack(res);
+                    var event = {
+                        code:0,
+                        message:'media_file_stream success!',
+                        path:path,
+                        url:url,
+                        result:res
+                    }
+                    outputCallBack(event);
                 }
             });
         });
@@ -288,9 +406,21 @@
             systemBus.invoke(dbus_conf_json, (err, res) => {
                 if(err)
                 {
-                    throw new Error(`set debug level "${level}" error !`);
+                    var event = {
+                        code:-1,
+                        message:'set debug level error !',
+                        level:level,
+                        error:err
+                    }
+                    outputCallBack(event);
                 }else{
-                    outputCallBack(res);
+                    var event = {
+                        code:0,
+                        message:'set debug level success!',
+                        level:level,
+                        result:res
+                    }
+                    outputCallBack(event);
                 }
             });
         });
