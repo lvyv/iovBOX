@@ -1,23 +1,28 @@
-var power= require('../dbus/power.js');
+var dbus_app = require('../dbus/dbus_app.js');
+var powerlib=require('../dbus/power.js');
+var dbus_obj = new dbus_app();
+var power = new powerlib(dbus_obj);
 
-power.getData(3, (res)=>{
-	console.log("get data "+res);
-});
-/*
-power.getWarnInfo(6, (res)=>{
-    console.log("get warn info"+res);
+dbus_obj.register_app_name();
 
-})*/
-power.setDebugLevel(6,(res)=>{
-	console.log("set debug level to 6!");
+power.getData(3, function(res){
+	console.log("get data "+JSON.stringify(res));
 });
 
+power.getWarnInfo(6, function(res){
+    console.log("get warn info"+JSON.stringify(res));
 
-power.setData(1,5, (res)=>{
-    console.log("set data [1,5] for "+ res);
+});
+
+power.setDebugLevel(6,function(res){
+	console.log("set debug level " + JSON.stringify(res));
+});
+
+power.setData(1, 5, function(res){
+    console.log("set data  "+ JSON.stringify(res));
 });
 
 
-power.getData(1,(res)=>{
-	console.log("get data "+res);
+power.getData(1,function(res){
+	console.log("get data "+JSON.stringify(res));
 })

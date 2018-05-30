@@ -126,7 +126,7 @@ media.prototype.initCam = function (cam_config, outputCallBack)
                 var event = {
                     code:-1,
                     message:'media_init error!',
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -142,7 +142,7 @@ media.prototype.initCam = function (cam_config, outputCallBack)
         var event = {
             code:-1,
             message:'media_init exceptions!',
-            error:err
+            result:err
         };
         outputCallBack(event);
     });
@@ -159,8 +159,8 @@ media.prototype.getCamInfo = function (outputCallBack)
                 var event = {
                     code:-1,
                     message:'get media_status info error!',
-                    error:err
-                }
+                    result:err
+                };
                 outputCallBack(event);
             }else{
                 //do something
@@ -189,7 +189,7 @@ media.prototype.getCamInfo = function (outputCallBack)
         var event = {
             code:-1,
             message:'media_status exceptions!',
-            error:err
+            result:err
         };
         outputCallBack(event);
     });
@@ -209,7 +209,7 @@ media.prototype.recordCam = function (id, url, path, period, loop, outputCallBac
                     code:-1,
                     message:'start media_record fail!',
                     cam_index:id,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -227,7 +227,7 @@ media.prototype.recordCam = function (id, url, path, period, loop, outputCallBac
             code:-1,
             message:'media_record exceptions!',
             cam_index:id,
-            error:err
+            result:err
         };
         outputCallBack(event);
     });
@@ -247,7 +247,7 @@ media.prototype.stopRecord = function (id, outputCallBack)
                     code:-1,
                     message:'stop media_record fail!',
                     cam_index:id,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -265,7 +265,7 @@ media.prototype.stopRecord = function (id, outputCallBack)
             code:-1,
             message:'media_record exceptions!',
             cam_index:id,
-            error:err
+            result:err
         };
         outputCallBack(event);
     });
@@ -285,7 +285,7 @@ media.prototype.playCam = function (id, url, path, time, outputCallBack)
                     code:-1,
                     message:'start media_stream fail!',
                     cam_index:id,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -303,7 +303,7 @@ media.prototype.playCam = function (id, url, path, time, outputCallBack)
             code:-1,
             message:'media_stream exceptions!',
             cam_index:id,
-            error:err
+            result:err
         };
         outputCallBack(event);
     });
@@ -323,7 +323,7 @@ media.prototype.stopPlay = function (id, outputCallBack)
                     code:-1,
                     message:'stop media_stream fail!',
                     cam_index:id,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -341,7 +341,7 @@ media.prototype.stopPlay = function (id, outputCallBack)
             code:-1,
             message:'media_stream exceptions!',
             cam_index:id,
-            error:err
+            result:err
         };
         outputCallBack(event);
     });
@@ -361,7 +361,7 @@ media.prototype.captureCam = function (id, url, path, num, outputCallBack)
                     code:-1,
                     message:'media_picture fail!',
                     cam_index:id,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -379,7 +379,7 @@ media.prototype.captureCam = function (id, url, path, num, outputCallBack)
             code:-1,
             message:'media_picture exceptions!',
             cam_index:id,
-            error:err
+            result:err
         };
         outputCallBack(event);
     });
@@ -401,7 +401,7 @@ media.prototype.playFile = function (path, url, time, outputCallBack)
                     message:'media_file_stream fail!',
                     path:path,
                     url:url,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -421,7 +421,7 @@ media.prototype.playFile = function (path, url, time, outputCallBack)
             message:'media_file_stream exceptions!',
             path:path,
             url:url,
-            error:err
+            result:err
         };
         outputCallBack(event);
     });
@@ -448,7 +448,7 @@ media.prototype.setDebugLevel = function (level, outputCallBack)
                     code:-1,
                     message:'set debug level error !',
                     level:level,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -466,7 +466,7 @@ media.prototype.setDebugLevel = function (level, outputCallBack)
             code:-1,
             message:'debug_level exceptions!',
             level:level,
-            error:err
+            result:err
         };
         outputCallBack(event);
     });

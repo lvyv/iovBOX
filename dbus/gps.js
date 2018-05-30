@@ -88,8 +88,8 @@ gps.prototype.onReportData = function (inputCallBack){
 /**
  * set the certain report type to gps.
  * 
- * @param {any} type  2==reportdata  1==reportNMEA
- * @param {any} outputCallBack  callback 
+ * @param {int} type  2==reportdata  1==reportNMEA
+ * @param {function} outputCallBack  callback
  */
 gps.prototype.setReportType = function (type, outputCallBack)
 {
@@ -149,7 +149,7 @@ gps.prototype.setReportEnable = function (enable, outputCallBack) {
                     code:-1,
                     message:'set enable exceptions!',
                     enable:enable,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -167,7 +167,7 @@ gps.prototype.setReportEnable = function (enable, outputCallBack) {
             code:-1,
             message:'set enable exceptions!',
             enable:enable,
-            error:res
+            result:res
         };
         outputCallBack(event);
     });
@@ -187,7 +187,7 @@ gps.prototype.setDebugLevel = function (level, outputCallBack)
                     code:-1,
                     message:'set debug level error!',
                     level:level,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }else{
@@ -205,7 +205,7 @@ gps.prototype.setDebugLevel = function (level, outputCallBack)
             code:-1,
             message:'set debug level exceptions!',
             level:level,
-            error:res
+            result:res
         };
         outputCallBack(event);
     });

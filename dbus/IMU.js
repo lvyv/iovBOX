@@ -175,7 +175,7 @@ imu.prototype.setDebugLevel = function(level, outputCallBack){
                     code:-1,
                     message:'set debug level error !',
                     level:level,
-                    error:err
+                    result:err
                 };
                 outputCallBack(event);
             }
@@ -194,7 +194,7 @@ imu.prototype.setDebugLevel = function(level, outputCallBack){
             code:-1,
             message:'set debug level exceptions!',
             level:level,
-            error:res
+            result:res
         };
         outputCallBack(event);
     });
