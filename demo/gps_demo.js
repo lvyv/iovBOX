@@ -1,21 +1,27 @@
-var gps = require('../dbus/gps.js');
+var dbus_app = require('../dbus/dbus_app.js');
+var gpslib = require('../dbus/gps.js');
+var dbus_obj = new dbus_app();
+var gps = new gpslib(dbus_obj);
 
-gps.onReportNMEA((res)=>{
-	console.log('report nmea :'+res.toString());
-})
+dbus_obj.register_app_name();
 
-gps.onReportData((res)=>{
-	console.log('report data :'+res.toString());
-})
 
-gps.setReportEnable(1,(res)=>{
-	console.log(`set report enable! `);
-})
+gps.onReportNMEA( function(res) {
+	console.log('report nmea :'+ (res));
+});
 
-gps.setReportType(2,(res)=>{
-	console.log(`set report type ${res}`);
-})
+gps.onReportData( function (res){
+	console.log('report data :'+ JSON.stringify(res));
+});
 
-gps.setDebugLevel(1,(res)=>{
-	console.log(`set debug level ${res}`);
-})
+gps.setReportEnable(1,function(res) {
+	console.log('setReportEnable: ' + JSON.stringify(res));
+});
+
+gps.setReportType(2,function(res){
+	console.log('set report ' +JSON.stringify(res));
+});
+
+gps.setDebugLevel(7,function(res){
+	console.log(`set debug level :` +JSON.stringify(res));
+});
