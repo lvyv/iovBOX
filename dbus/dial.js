@@ -35,44 +35,60 @@ function dial(dbus_app) {
 
     self.addMatchSignal = function (resolve, reject) {
         self.dbus.systemBus.addMatch('type=\'signal\', member=\'signal\'', function(err, value) {
-            if(err) {
-                reject(err);
-            }
-            else{
-            	resolve(value);
+            try {
+                if(err) {
+                    reject(err);
+                }
+                else{
+                    resolve(value);
+                }
+            } catch(error) {
+                reject(error);
             }
         });
     };
 
     self.addMatchSimstat = function (resolve, reject) {
         self.dbus.systemBus.addMatch('type=\'signal\', member=\'simstat\'', function(err, value) {
-            if(err) {
-                reject(err);
-            }
-            else{
-                resolve(value);
+            try {
+                if(err) {
+                    reject(err);
+                }
+                else{
+                    resolve(value);
+                }
+            } catch(error) {
+                reject(error);
             }
         });
     };
 
     self.addMatchState = function (resolve, reject) {
         self.dbus.systemBus.addMatch('type=\'signal\', member=\'state\'', function(err, value) {
-            if(err) {
-                reject(err);
-            }
-            else{
-                resolve(value);
+            try {
+                if(err) {
+                    reject(err);
+                }
+                else{
+                    resolve(value);
+                }
+            } catch(error) {
+                reject(error);
             }
         });
     };
 
     self.addMatchNetwork = function (resolve, reject) {
         self.dbus.systemBus.addMatch('type=\'signal\', member=\'network\'', function(err, value) {
-            if(err) {
-                reject(err);
-            }
-            else{
-                resolve(value);
+            try {
+                if(err) {
+                    reject(err);
+                }
+                else{
+                    resolve(value);
+                }
+            } catch(error) {
+                reject(error);
             }
         });
     };
@@ -378,8 +394,7 @@ dial.prototype.setDebugLevel = function(level, outputCallBack) {
         self.dbus_conf_json['signature'] = 'u';
         self.dbus_conf_json['body']= [level];
         self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
-            if(err)
-            {
+            if(err){
                 var event = {
                     code:-1,
                     message:'set debug level error !',
@@ -387,7 +402,8 @@ dial.prototype.setDebugLevel = function(level, outputCallBack) {
                     error:err
                 };
                 outputCallBack(event);
-            }else{
+            }
+            else{
                 var event = {
                     code:0,
                     message:'set debug level success!',
@@ -400,7 +416,7 @@ dial.prototype.setDebugLevel = function(level, outputCallBack) {
     }).catch(function(res){
         var event = {
             code:-1,
-            message:'debug_level exceptions!',
+            message:'set debug level exceptions!',
             level:level,
             error:res
         };

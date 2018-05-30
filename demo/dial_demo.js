@@ -30,10 +30,14 @@ dial.getInfo(function(res){
 //     console.log("send info out for "+JSON.stringify(res)+"!");
 // });
 
+dial.setDebugLevel(7,function (res) {
+    console.log("set Debug Level "+JSON.stringify(res));
+});
+
 dial.getMessageList(4,  function(res){
-    console.log("get list "+JSON.stringify(res));
+    console.log("get Message List "+JSON.stringify(res));
 });
 
 dial.deleteMessage(0, 1, function(res){
-    console.log("del msg "+JSON.stringify(res));
+    console.log("delete msg "+JSON.stringify(res));
 });
