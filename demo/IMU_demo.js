@@ -1,21 +1,24 @@
-var imu = require('../dbus/IMU.js');
+var dbus_app = require('../dbus/dbus_app.js');
+var imulib=require('../dbus/IMU.js');
+var dbus_obj = new dbus_app();
+var imu = new imulib(dbus_obj);
 
+dbus_obj.register_app_name();
 
-imu.onIMUReport((res) =>{
-	console.log("imu report:"+res);
+imu.onIMUReport( function(res) {
+	console.log("imu report:" + JSON.stringify(res));
 });
 
-imu.setSample(1,(res)=>{
-	console.log("set imu samples 1s!");
+imu.setSample(5,function(res){
+	console.log("set imu samples" +JSON.stringify(res));
 });
 
-imu.setDebugLevel(6,(res)=>{
-	console.log("set debug level to 6!");
+imu.setDebugLevel(6,function(res){
+	console.log("set debug level" +JSON.stringify(res));
 });
 
-
-imu.setSwitch(1, (res)=>{
-    console.log("set switch on for "+ res);
+imu.setSwitch(1, function(res){
+    console.log("set switch on for "+ JSON.stringify(res));
 });
 
 

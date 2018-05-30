@@ -18,7 +18,7 @@ dial.onSimStateChange(function(res){
 });
 
 dial.onNetworkChange(function(res){
-    console.log("sim state chaneged for "+JSON.stringify(res)+"!");
+    console.log("sim state chaneged for "+JSON.stringify(res));
 });
 
 dial.getInfo(function(res){
@@ -27,7 +27,7 @@ dial.getInfo(function(res){
 
 // dial.sendMessage('18611853975', 'give me some money!', function(res)
 // {
-//     console.log("send info out for "+JSON.stringify(res)+"!");
+//     console.log("send info out for "+JSON.stringify(res));
 // });
 
 dial.setDebugLevel(7,function (res) {

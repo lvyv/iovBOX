@@ -24,7 +24,9 @@ dbus_app.prototype.register_app_name = function() {
             console.log("dbus app register success!");
             for (var i = 0; i < self.listener_fun_array.length; ++i){
                 var fun = self.listener_fun_array[i];
-                fun(self.resolve, self.reject);
+                if((typeof fun === "function")){
+                    fun(self.resolve, self.reject);
+                }
             }
         }else{
             self.reject(e);
