@@ -19,9 +19,9 @@ function dbus_app(){
 dbus_app.prototype.register_app_name = function() {
     var self = this;
     self.systemBus.requestName(self.serviceName, 0x4, function(e, retCode) {
-        console.log("systemBus requestName retCode="+retCode);
         // Return code 0x1 means we successfully had the name
         if(retCode === 1) {
+            console.log("dbus app register success!");
             for (var i = 0; i < self.listener_fun_array.length; ++i){
                 var fun = self.listener_fun_array[i];
                 fun(self.resolve, self.reject);
