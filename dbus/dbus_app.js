@@ -1,12 +1,19 @@
 var dbus_native = require('dbus-native');
-var Promise = require('promise');
 
 module.exports = dbus_app;
 
-function dbus_app(){
+/**
+ * 创建dbus应用服务对象，默认服务名称 'et.e52x.main'
+ * 服务名称在 '/etc/dbus-1/system.d/' 目录添加
+ * 添加方法 参考et.e52x.main.conf，确保配置文件中的名称与文件名保持一致
+ * 服务名称添加完成，重启（reboot）系统生效
+ *
+ * @param service_name
+ */
+function dbus_app(service_name){
     var self = this;
     self.systemBus = dbus_native.systemBus();
-    self.serviceName = 'et.e52x.main';
+    self.serviceName = service_name || 'et.e52x.main';
     self.proc = new Promise(function(resolve, reject) {
         console.log("init Promise done!!");
        self.resolve = resolve;
@@ -28,8 +35,11 @@ dbus_app.prototype.register_app_name = function() {
                     fun(self.resolve, self.reject);
                 }
             }
-        }else{
+        }else if (retCode != undefined){
             self.reject("dbus app register fail! code = " + retCode);
+        }
+        else {
+            self.reject(e);
         }
     });
 };
