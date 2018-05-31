@@ -19,13 +19,13 @@ wifi.queryWifiInfo(function (res) {
     console.log("query Wifi Info " + JSON.stringify(res));
 });
 
-wifi.setModeAP({ssid:'APyangxianzhi',password:'123456789',hidden:false},function (res) {
-    console.log("setModeAP " + JSON.stringify(res));
-});
-
-// wifi.setModeSTA({ap_name:'Xiaomi_9260',password:'hnytxywangjia'},function (res) {
-//     console.log("setModeSTA " + JSON.stringify(res));
+// wifi.setModeAP({ssid:'APyangxianzhi',password:'123456789',hidden:false},function (res) {
+//     console.log("setModeAP " + JSON.stringify(res));
 // });
+
+wifi.setModeSTA({ap_name:'Xiaomi_9260',password:'hnytxywangjia'},function (res) {
+    console.log("setModeSTA " + JSON.stringify(res));
+});
 
 // wifi.setModeAPSTA({ssid:'APyangxianzhi',password:'123456789',ap_name:'Xiaomi_9260',ap_password:'hnytxywangjia',hidden:false},function (res) {
 //     console.log("setModeAPSTA " + JSON.stringify(res));

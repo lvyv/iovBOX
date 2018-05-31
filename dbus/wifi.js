@@ -238,10 +238,10 @@ wifi.prototype.setModeSTA = function(opts,outputCallBack){
  *
  * @param {object} opts
  * {
- *    {string} ssid:
- *    {string} password:
  *    {string} ap_name:
  *    {string} ap_password:
+ *    {string} ssid:
+ *    {string} password:
  *    {bool} hidden:
  * }
  * @param outputCallBack
@@ -257,7 +257,7 @@ wifi.prototype.setModeAPSTA = function(opts,outputCallBack){
         }
         self.dbus_conf_json.member='wifi_init';
         self.dbus_conf_json.signature = 'sssssb';
-        self.dbus_conf_json.body= [self.WifiMode.APSTA,opts.ssid,opts.password,opts.ap_name,opts.ap_password,opts.hidden];
+        self.dbus_conf_json.body= [self.WifiMode.APSTA,opts.ap_name,opts.ap_password,opts.ssid,opts.password,opts.hidden];
         self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
             if (err){
                 var event = {
