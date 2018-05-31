@@ -1,4 +1,6 @@
-var SerialPort = require("serialport");  
+#!/usr/bin/env node
+
+var SerialPort = require("serialport");
 var COM = "/dev/ttyO4";
   
 var serialPort = new SerialPort(COM, {  

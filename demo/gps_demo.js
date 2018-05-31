@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var dbus_app = require('../dbus/dbus_app.js');
 var gpslib = require('../dbus/gps.js');
 var dbus_obj = new dbus_app();

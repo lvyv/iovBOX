@@ -53,6 +53,10 @@ led.prototype.setColor = function (ledid, color, outputCallBack){
                     color:color,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set color fail!';
+                }
                 outputCallBack(event);
             }
         });
@@ -97,6 +101,10 @@ led.prototype.setDebugLevel = function (level, outputCallBack){
                     level:level,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!';
+                }
                 outputCallBack(event);
             }
         });

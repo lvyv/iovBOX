@@ -219,6 +219,10 @@ dial.prototype.sendMessage = function (phone, msg, outputCallBack) {
                     content:msg,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'send message fail!'
+                }
                 outputCallBack(event);
 			}
 		});
@@ -272,6 +276,10 @@ dial.prototype.getInfo = function (outputCallBack) {
                     event.dial_info.base_station_id = messageBody[6][2];
                     event.dial_info.reason = messageBody[6][3];
                 }
+                else {
+                    event.code = -1;
+                    event.message = 'get sim card info fail!'
+                }
                 outputCallBack(event);
 			}
 		});
@@ -315,6 +323,10 @@ dial.prototype.getMessageList = function(status,outputCallBack) {
                     status:status,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'get msg list fail!'
+                }
                 outputCallBack(event);
             }
         });
@@ -363,6 +375,10 @@ dial.prototype.deleteMessage = function(msgid, msgtype,outputCallBack) {
                     id:msgid,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'delete message fail!'
+                }
                 outputCallBack(event);
 			}
 		});
@@ -410,6 +426,10 @@ dial.prototype.setDebugLevel = function(level, outputCallBack) {
                     level:level,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!'
+                }
                 outputCallBack(event);
             }
         });

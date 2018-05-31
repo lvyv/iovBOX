@@ -106,6 +106,10 @@ gpio.prototype.setLow = function (channel, outputCallBack) {
                     channel:channel,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'send low fail!';
+                }
                 outputCallBack(event);
 			}
 		});
@@ -151,6 +155,10 @@ gpio.prototype.setHigh = function(channel, outputCallBack) {
                     channel:channel,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'send low fail!';
+                }
                 outputCallBack(event);
 			}
 		});
@@ -243,6 +251,10 @@ gpio.prototype.setDebugLevel = function(level, outputCallBack){
                     level:level,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!';
+                }
                 outputCallBack(event);
             }
         });

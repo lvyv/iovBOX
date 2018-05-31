@@ -97,6 +97,10 @@ imu.prototype.setSample = function(sec, outputCallBack){
                     sec:sec,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set sample fail!';
+                }
                 outputCallBack(event);
             }
         });
@@ -141,6 +145,10 @@ imu.prototype.setSwitch = function(enable, outputCallBack) {
                     enable:enable,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set switch fail!';
+                }
                 outputCallBack(event);
             }
         });
@@ -186,6 +194,10 @@ imu.prototype.setDebugLevel = function(level, outputCallBack){
                     level:level,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!';
+                }
                 outputCallBack(event);
             }
         });

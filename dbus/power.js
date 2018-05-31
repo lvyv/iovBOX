@@ -15,13 +15,6 @@ function power(dbus_app) {
         'body': [0,2.5],
         'type': self.dbus.dbus.messageType.methodCall
     };
-    self.dbus_out_json={
-        'path': '/et/e52x/power',
-        'destination': 'et.e52x.power',
-        'interface': 'et.e52x.power',
-        'member': 'get_data',
-        'type': self.dbus.dbus.messageType.methodCall
-    };
     self.addMatchPower = function(resolve,reject){
         resolve("init power ok!");
     };
@@ -59,6 +52,10 @@ power.prototype.getWarnInfo = function(type, outputCallBack) {
                     type:type,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'get Warn Info fail!';
+                }
                 outputCallBack(event);
             }
         });
@@ -105,6 +102,10 @@ power.prototype.getData = function(type, outputCallBack){
                     type:type,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'get data fail!';
+                }
                 outputCallBack(event);
             }
         });
@@ -162,6 +163,10 @@ power.prototype.setData = function(type, data, outputCallBack){
                     data:data,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set data fail!';
+                }
                 outputCallBack(event);
             }
         });
@@ -208,6 +213,10 @@ power.prototype.setDebugLevel = function (level, outputCallBack){
                     level:level,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!';
+                }
                 outputCallBack(event);
             }
         });

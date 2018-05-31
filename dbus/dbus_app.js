@@ -29,7 +29,7 @@ dbus_app.prototype.register_app_name = function() {
                 }
             }
         }else{
-            self.reject(e);
+            self.reject("dbus app register fail! code = " + retCode);
         }
     });
 };

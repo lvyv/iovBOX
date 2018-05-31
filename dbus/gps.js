@@ -116,6 +116,10 @@ gps.prototype.setReportType = function (type, outputCallBack)
                     type:type,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set report fail!';
+                }
                 outputCallBack(event);
             }
         });
@@ -159,6 +163,10 @@ gps.prototype.setReportEnable = function (enable, outputCallBack) {
                     enable:enable,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set enable fail!';
+                }
                 outputCallBack(event);
             }
         });
@@ -197,6 +205,10 @@ gps.prototype.setDebugLevel = function (level, outputCallBack)
                     level:level,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!';
+                }
                 outputCallBack(event);
             }
         });

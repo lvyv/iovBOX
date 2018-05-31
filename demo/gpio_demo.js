@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var dbus_app = require('../dbus/dbus_app.js');
 var gpiolib = require('../dbus/gpio.js');
 var dbus_obj = new dbus_app();

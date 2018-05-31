@@ -2,7 +2,7 @@ module.exports = media;
 
 function media(dbus_app){
     var self = this;
-    self.dbus = dbus;
+    self.dbus = dbus_app;
     self.media_dbus_name = 'et.e52x.media';
     self.media_dbus_path= '/' + self.media_dbus_name.replace(/\./g, '/');
     self.dbus_conf_json={
@@ -40,7 +40,11 @@ function media(dbus_app){
     self.proc = self.dbus.proc;
 }
 
-media.prototype.onStatusUpdate = function (inputCallBack)
+/**
+ * media Status Update
+ * @param outputCallBack
+ */
+media.prototype.onStatusUpdate = function (outputCallBack)
 {    
     var self = this;
     var signalFullName = self.dbus.systemBus.mangle(self.media_dbus_path, self.media_dbus_name, 'status_update');
@@ -61,7 +65,7 @@ media.prototype.onStatusUpdate = function (inputCallBack)
             };
             event.cam_list[i] = camera;
         }
-        return inputCallBack(event);
+        return outputCallBack(event);
     });
 };
 
@@ -135,6 +139,10 @@ media.prototype.initCam = function (cam_config, outputCallBack)
                     message:'media_init success!',
                     result:res
                 };
+                if (res != 0){
+                    event.code = -1;
+                    event.message = 'media_init fail!';
+                }
                 outputCallBack(event);
             }
         });
@@ -458,6 +466,10 @@ media.prototype.setDebugLevel = function (level, outputCallBack)
                     level:level,
                     result:res
                 };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!';
+                }
                 outputCallBack(event);
             }
         });

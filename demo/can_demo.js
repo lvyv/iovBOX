@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var vcan=require('socketcan');
 var channel = vcan.createRawChannel("can0", true /* ask for timestamps */);
 channel.start();

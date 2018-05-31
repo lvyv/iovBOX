@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var dbus_app = require('../dbus/dbus_app.js');
 var diallib=require('../dbus/dial.js');
 var dbus_obj = new dbus_app();
@@ -25,10 +27,10 @@ dial.getInfo(function(res){
     console.log("get info "+JSON.stringify(res));
 });
 
-// dial.sendMessage('18611853975', 'give me some money!', function(res)
-// {
-//     console.log("send info out for "+JSON.stringify(res));
-// });
+dial.sendMessage('18611853975', 'give me some money!', function(res)
+{
+    console.log("send info out for "+JSON.stringify(res));
+});
 
 dial.setDebugLevel(7,function (res) {
     console.log("set Debug Level "+JSON.stringify(res));
