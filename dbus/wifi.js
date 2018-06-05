@@ -76,7 +76,6 @@ wifi.prototype.queryWifiInfo = function(outputCallBack){
                 var event = {
                     code:-1,
                     message:'queryWifiInfo error!',
-                    level:level,
                     result:err
                 };
                 outputCallBack(event);
@@ -114,7 +113,6 @@ wifi.prototype.queryWifiInfo = function(outputCallBack){
         var event = {
             code:-1,
             message:'queryWifiInfo exceptions!',
-            level:level,
             result:res
         };
         outputCallBack(event);
@@ -287,6 +285,92 @@ wifi.prototype.setModeAPSTA = function(opts,outputCallBack){
             code:-1,
             message:'setModeAPSTA exceptions!',
             opts:opts,
+            result:res
+        };
+        outputCallBack(event);
+    });
+};
+
+function utf8to16(str) {
+    var out, i, len, c;
+    var char2, char3;
+    out = "";
+    len = str.length;
+    i = 0;
+    while(i < len) {
+        c = str.charCodeAt(i++);
+        switch(c >> 4)
+        {
+            case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+            out += str.charAt(i-1);
+            break;
+            case 12: case 13:
+            char2 = str.charCodeAt(i++);
+            out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+            break;
+            case 14:
+                char2 = str.charCodeAt(i++);
+                char3 = str.charCodeAt(i++);
+                out += String.fromCharCode(((c & 0x0F) << 12) |
+                    ((char2 & 0x3F) << 6) |
+                    ((char3 & 0x3F) << 0));
+                break;
+        }
+    }
+
+    return out;
+}
+
+function builderUnicodeString(msg) {
+    var len = Math.floor(msg.length / 2);
+    var rel = '';
+    var odd = msg.length % 2 != 0;
+    for (var i = 0; i < len; i++) {
+        rel = rel + String.fromCharCode('0x' + msg.substring(i * 2, i * 2 + 2));
+    }
+    if(odd){
+        rel = rel + String.fromCharCode('0x0' + msg[msg.length-1]);
+    }
+    return rel;
+}
+
+wifi.prototype.ScanWiFiAccessPoint = function(outputCallBack){
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_out_json.member='scan_ssid';
+        self.dbus.systemBus.invoke(self.dbus_out_json, function(err, messageBody) {
+            if (err){
+                var event = {
+                    code:-1,
+                    message:'ScanWiFiAccessPoint error!',
+                    result:err
+                };
+                outputCallBack(event);
+            }
+            else {
+                var event = {
+                    code:0,
+                    message: 'ScanWiFiAccessPoint success!',
+                    ap_list: new Array()
+                };
+                var tmplist = messageBody.split(',');
+                for (var i = 0; i < tmplist.length; ++i){
+                    var ap_name = tmplist[i];
+                    if (ap_name){
+                        var flag = '0x';
+                        if (ap_name.indexOf(flag) == 0){
+                            ap_name = utf8to16(builderUnicodeString(ap_name.substring(flag.length,ap_name.length)));
+                        }
+                        event.ap_list.push(ap_name);
+                    }
+                }
+                return outputCallBack(event);
+            }
+        });
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'ScanWiFiAccessPoint exceptions!',
             result:res
         };
         outputCallBack(event);

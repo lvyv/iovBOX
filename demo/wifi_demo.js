@@ -19,14 +19,20 @@ wifi.queryWifiInfo(function (res) {
     console.log("query Wifi Info " + JSON.stringify(res));
 });
 
-// wifi.setModeAP({ssid:'APyangxianzhi',password:'123456789',hidden:false},function (res) {
+// wifi.setModeAP({ssid:'zhizhi',password:'123456789',hidden:false},function (res) {
 //     console.log("setModeAP " + JSON.stringify(res));
 // });
 
-wifi.setModeSTA({ap_name:'Xiaomi_9260',password:'hnytxywangjia'},function (res) {
+wifi.setModeSTA({ap_name:'itCode_ap',password:'123456789'},function (res) {
     console.log("setModeSTA " + JSON.stringify(res));
 });
 
-// wifi.setModeAPSTA({ssid:'APyangxianzhi',password:'123456789',ap_name:'Xiaomi_9260',ap_password:'hnytxywangjia',hidden:false},function (res) {
+// wifi.setModeAPSTA({ap_name:'itCode_ap',ap_password:'123456789', ssid:'zhizhi',password:'123456789',hidden:false},function (res) {
 //     console.log("setModeAPSTA " + JSON.stringify(res));
 // });
+
+setInterval(function () {
+    wifi.ScanWiFiAccessPoint(function (res) {
+        console.log("Scan WiFi AccessPoint result: " + JSON.stringify(res));
+    });
+},10 * 1000);
