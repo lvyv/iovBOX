@@ -21,6 +21,12 @@ function wifi(dbus_app){
       APSTA:'APSTA'
     };
 
+
+    self.ConnectStatus = {
+        0: "DISCONNECTED",
+        1: "CONNECTED"
+    };
+
     self.dbus_out_json={
         path: self.wifi_dbus_path,
         destination: self.wifi_dbus_name,
@@ -50,7 +56,7 @@ function wifi(dbus_app){
 }
 
 /**
- * 状态报告
+ * 连接状态报告
  * WIFI Status update
  * @param outputCallBack
  */
@@ -60,11 +66,9 @@ wifi.prototype.onWifiStatus = function(outputCallBack){
     self.dbus.systemBus.signals.on(signalFullName, function(messageBody) {
         //console.log(messageBody);
         var event = {};
-        if (messageBody[0] == 0){
-            event.status = 'disconnected'
-        }
-        else if (messageBody[0] == 1){
-            event.status = 'connected'
+        var status = self.ConnectStatus[messageBody[0]];
+        if (status){
+            event.status = status;
         }
         else {
             event.status = messageBody[0];
