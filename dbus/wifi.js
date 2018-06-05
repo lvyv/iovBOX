@@ -58,8 +58,18 @@ wifi.prototype.onWifiStatus = function(outputCallBack){
     var self = this;
     var signalFullName = self.dbus.systemBus.mangle(self.wifi_dbus_path, self.wifi_dbus_name, self.siganl_status_update);
     self.dbus.systemBus.signals.on(signalFullName, function(messageBody) {
-        console.log(messageBody);
-        return outputCallBack(messageBody);
+        //console.log(messageBody);
+        var event = {};
+        if (messageBody[0] == 0){
+            event.status = 'disconnected'
+        }
+        else if (messageBody[0] == 1){
+            event.status = 'connected'
+        }
+        else {
+            event.status = messageBody[0];
+        }
+        return outputCallBack(event);
     });
 };
 
