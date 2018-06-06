@@ -140,9 +140,9 @@ bluetooth.prototype.onMessage = function(outputCallBack){
     var self = this;
     var signalFullName = self.dbus.systemBus.mangle(self.bluez_dbus_path, self.bluez_dbus_name, self.siganl_recv_data);
     self.dbus.systemBus.signals.on(signalFullName, function(messageBody) {
-        // console.log(messageBody);
+        //console.log(messageBody.toString('utf8'));
         var event = {
-            message:messageBody
+            message:messageBody.toString('utf8')
         };
         return outputCallBack(event);
     });
@@ -207,13 +207,15 @@ bluetooth.prototype.sendMessage = function(message,outputCallBack){
 
         var event = {
             code:0,
-            message:'sendMessage success!'
+            message:'sendMessage success!',
+            content:message
         };
         outputCallBack(event);
     }).catch(function(res){
         var event = {
             code:-1,
             message:'sendMessage exceptions!',
+            content:message,
             result:res
         };
         outputCallBack(event);

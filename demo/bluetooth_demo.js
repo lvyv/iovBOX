@@ -31,4 +31,8 @@ setInterval(function () {
     bluetooth.sendMessage('give me some money!', function (res) {
         console.log("sendMessage " + JSON.stringify(res));
     });
+
+    bluetooth.sendMessage('给钱!', function (res) {
+        console.log("sendMessage " + JSON.stringify(res));
+    });
 }, 5 * 1000);
