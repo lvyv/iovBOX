@@ -443,3 +443,56 @@ dial.prototype.setDebugLevel = function(level, outputCallBack) {
         outputCallBack(event);
     });
 };
+
+/**
+ * 获取版本号
+ *
+ * @param {function} outputCallBack
+ */
+dial.prototype.getHWInfo= function (outputCallBack)
+{
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member'] = 'hwinfo';
+        self.dbus_conf_json['signature'] = null;
+        self.dbus_conf_json['body']= null;
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
+            if(err)
+            {
+                var event = {
+                    code:-1,
+                    message:'get HWInfo error!',
+                    result:err
+                };
+                outputCallBack(event);
+            }else{
+                var hwinfo = res.toString().split(',');
+                var hwinfo_json= {
+                    manufacturer:hwinfo[0],
+                    model:hwinfo[1],
+                    version:hwinfo[2],
+                    imei:hwinfo[3],
+                };
+                var event = {
+                    code:0,
+                    message:'get HWInfo success!',
+                    level:level,
+                    result: hwinfo_json
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'get HWInfo fail!';
+                }
+                outputCallBack(event);
+            }
+        });
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'get HWInfo exceptions!',
+            level:level,
+            result:res
+        };
+        outputCallBack(event);
+    });
+};

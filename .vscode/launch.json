@@ -23,8 +23,8 @@
         {
             "type": "node",
             "request": "attach",
-            "name": "192.168.84.86:9229",
-            "address": "192.168.84.86",
+            "name": "192.168.100.250:9229",
+            "address": "192.168.100.250",
             "port": 9229,
             "sourceMaps": false,
             "restart": true,

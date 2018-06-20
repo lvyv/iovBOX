@@ -85,6 +85,52 @@ gps.prototype.onReportData = function (inputCallBack){
     });
 };
 
+gps.prototype.getInfo = function(outputCallBack)
+{
+    var self = this;
+    self.proc.then(function() {
+        self.dbus_conf_json['member']='info';
+        self.dbus_conf_json['signature']=null;
+        self.dbus_conf_json['body']=null;
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
+            if(err)
+            {
+                var event = {
+                    code:-1,
+                    message:'set report error!',
+                    type:type,
+                    result:err
+                };
+                outputCallBack(event);
+            }else{
+                var gps_data = res.toString().split(',');
+                var gps_json = {
+                    longitude:gps_data[0],
+                    latitude:gps_data[1],
+                    height:gps_data[2],
+                    longitude_type:gps_data[3],
+                    latitude_type:gps_data[4],
+                    position_type:gps_data[5],
+                    gps_satellite_sum:gps_data[6],
+                    gps_time:gps_data[7],
+                    gps_course:gps_data[8],
+                    gps_velocity:gps_data[9],
+                    coord_type:'wgs84'
+                };
+                var event = {
+                    code:1,
+                    message: 'get gps info sucessful!',
+                    type: type,
+                    result: gps_json
+                }
+                outputCallBack(event);
+            }
+       });
+    });
+}
+
+
+
 /**
  * set the certain report type to gps.
  * 
