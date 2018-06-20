@@ -6,24 +6,22 @@ function power(dbus_app) {
     self.power_dbus_name = 'et.e52x.power';
     self.power_dbus_path= '/' + self.power_dbus_name.replace(/\./g, '/');
     self.signame ='warn_info';
-    self.warninfo = new map(
-       [0,'MAIN_POWER_SLEEP'],
-       [1,'MAIN_POWER_VLOW'],
-       [2,'MAIN_POWER_OFF'],
-       [3,'BACK_POWER_VLOW'],
-       [4,'DEVICE_UNCOVER'],
-       [5,'DEVICE_ACC_ON'],
-       [32,'MAIN_POWER_NORMAL'],
-       [33,'MAIN_POWER_VHIGH'],
-       [34,'MAIN_POWER_ON'],
-       [35,'BACK_POWER_VHIGH'],
-       [36,'DEVICE_COVER'],
-       [37,'DEVICE_ACC_OFF'],
-       [64,'SD_CARD_REMOVE'],
-       [65,'MOBILE_NET_WAKEUP'],
-    );
-
-
+    self.warninfo = {
+       0:'MAIN_POWER_SLEEP',
+       1:'MAIN_POWER_VLOW',
+       2:'MAIN_POWER_OFF',
+       3:'BACK_POWER_VLOW',
+       4:'DEVICE_UNCOVER',
+       5:'DEVICE_ACC_ON',
+       32:'MAIN_POWER_NORMAL',
+       33:'MAIN_POWER_VHIGH',
+       34:'MAIN_POWER_ON',
+       35:'BACK_POWER_VHIGH',
+       36:'DEVICE_COVER',
+       37:'DEVICE_ACC_OFF',
+       64:'SD_CARD_REMOVE',
+       65:'MOBILE_NET_WAKEUP'
+    };
 
     self.dbus_conf_json={
         'path': '/et/e52x/power',
@@ -61,7 +59,7 @@ power.prototype.onWarnInfo = function(outputCallBack){
          * messageBody
          * int32: tags index
          */
-        var event = { warninfo : self.warninfo.get(messageBody[0]) };
+        var event = { warninfo : warninfo[messageBody[0]] };
         return outputCallBack(event);
     });
 
