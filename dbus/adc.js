@@ -3,13 +3,13 @@ module.exports = adc;
 function adc(dbus_app) {
     var self = this;
     self.dbus = dbus_app;
-    self.adc_dbus_name = 'et.e52x.adcd';
+    self.adc_dbus_name = 'et.e52x.adc';
     self.adc_dbus_path= '/' + self.adc_dbus_name.replace(/\./g, '/');
     self.signame ='value';
     self.dbus_conf_json={
-        'path': '/et/e52x/adcd',
-        'destination': 'et.e52x.adcd',
-        'interface': 'et.e52x.adcd',
+        'path': '/et/e52x/adc',
+        'destination': 'et.e52x.adc',
+        'interface': 'et.e52x.adc',
         'member': 'sample',
         'signature': 'u',
         'body': [0],

@@ -98,7 +98,6 @@ gps.prototype.getInfo = function(outputCallBack)
                 var event = {
                     code:-1,
                     message:'set report error!',
-                    type:type,
                     result:err
                 };
                 outputCallBack(event);
@@ -120,7 +119,6 @@ gps.prototype.getInfo = function(outputCallBack)
                 var event = {
                     code:1,
                     message: 'get gps info sucessful!',
-                    type: type,
                     result: gps_json
                 }
                 outputCallBack(event);
