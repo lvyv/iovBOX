@@ -59,7 +59,7 @@ power.prototype.onWarnInfo = function(outputCallBack){
          * messageBody
          * int32: tags index
          */
-        var event = { warninfo : warninfo[messageBody[0]] };
+        var event = { warninfo : self.warninfo[messageBody[0]] };
         return outputCallBack(event);
     });
 
@@ -81,14 +81,15 @@ power.prototype.getData = function(type, outputCallBack){
         self.dbus_conf_json['member'] = 'get_data';
         self.dbus_conf_json['signature'] = 'i';
         self.dbus_conf_json['body'] = [type];
-        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res, data) {
             if(err)
             {
                 var event = {
                     code:-1,
                     message:'get data error!',
                     type:type,
-                    result:err
+                    result:err,
+                    data: null
                 };
                 outputCallBack(event);
             }else{
@@ -96,7 +97,8 @@ power.prototype.getData = function(type, outputCallBack){
                     code:0,
                     message:'get data success!',
                     type:type,
-                    result:res
+                    result:res,
+                    data: data
                 };
                 if (res == false){
                     event.code = -1;
@@ -110,7 +112,8 @@ power.prototype.getData = function(type, outputCallBack){
             code:-1,
             message:'get data exceptions!',
             type:type,
-            result:res
+            result:res,
+            data: null
         };
         outputCallBack(event);
     });
