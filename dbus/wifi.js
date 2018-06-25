@@ -466,7 +466,6 @@ wifi.prototype.getVersion= function (outputCallBack)
                 var event = {
                     code:0,
                     message:'get version success!',
-                    level:level,
                     result:res
                 };
                 if (res == false){
@@ -480,7 +479,6 @@ wifi.prototype.getVersion= function (outputCallBack)
         var event = {
             code:-1,
             message:'get version exceptions!',
-            level:level,
             result:res
         };
         outputCallBack(event);

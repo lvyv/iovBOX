@@ -43,4 +43,4 @@ descript("gpio test suit!", ()=>{
             expect(res.code).toBe(0);
         });
     })
-})
+});
