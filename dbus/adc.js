@@ -62,14 +62,25 @@ adc.prototype.onADCReport= function(outputCallBack){
 };
 
 /**
- * 设置采样周期，单位（秒）
- * @param sec
+ * 设置采样周期，单位（毫秒）
+ * @param sec(>=50ms)
  * @param outputCallBack
  */
 adc.prototype.setSample = function(sec, outputCallBack){
     var self = this;
+
     self.proc.then( function (){
-        self.dbus_conf_json['member'] = 'sample';
+        if(sec < 50) {
+            var event = {
+                code:-1,
+                message:'sec little than 50 error',
+                sec:sec
+            };
+            outputCallBack(event);
+            return;
+        }
+
+        self.dbus_conf_json['member'] = 'set_sample';
         self.dbus_conf_json['signature'] = 'u';
         self.dbus_conf_json['body']=[sec];
         self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
@@ -89,7 +100,7 @@ adc.prototype.setSample = function(sec, outputCallBack){
                     sec:sec,
                     result:res
                 };
-                if (res == false){
+                if (res == true){
                     event.code = -1;
                     event.message = 'set sample fail!';
                 }
@@ -137,7 +148,7 @@ adc.prototype.setSwitch = function(enable, outputCallBack) {
                     enable:enable,
                     result:res
                 };
-                if (res == false){
+                if (res == true){
                     event.code = -1;
                     event.message = 'set switch fail!';
                 }

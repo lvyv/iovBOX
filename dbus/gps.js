@@ -148,7 +148,6 @@ gps.prototype.setReportType = function (type, outputCallBack)
                 var event = {
                     code:-1,
                     message:'set report error!',
-                    type:type,
                     result:err
                 };
                 outputCallBack(event);
@@ -157,7 +156,6 @@ gps.prototype.setReportType = function (type, outputCallBack)
                 var event = {
                     code:0,
                     message:'set report success!',
-                    type:type,
                     result:res
                 };
                 if (res == false){
@@ -171,7 +169,6 @@ gps.prototype.setReportType = function (type, outputCallBack)
         var event = {
             code:-1,
             message:'set report exception!',
-            type:type,
             result:res
         };
         outputCallBack(event);
