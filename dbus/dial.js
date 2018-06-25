@@ -476,7 +476,6 @@ dial.prototype.getHWInfo= function (outputCallBack)
                 var event = {
                     code:0,
                     message:'get HWInfo success!',
-                    level:level,
                     result: hwinfo_json
                 };
                 if (res == false){
@@ -490,7 +489,6 @@ dial.prototype.getHWInfo= function (outputCallBack)
         var event = {
             code:-1,
             message:'get HWInfo exceptions!',
-            level:level,
             result:res
         };
         outputCallBack(event);
