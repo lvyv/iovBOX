@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var dbus_app = require('../dbus/dbus_app.js');
-var bluetoothlib=require('../dbus/bluetooth.js');
+var dbus_app = require('dbus-js/dbus_app.js');
+var bluetoothlib=require('dbus-js/bluetooth.js');
 var dbus_obj = new dbus_app();
 var bluetooth = new bluetoothlib(dbus_obj);
 

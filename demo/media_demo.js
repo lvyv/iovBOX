@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var dbus_app = require('../dbus/dbus_app.js');
-var medialib=require('../dbus/media.js');
+var dbus_app = require('dbus-js/dbus_app.js');
+var medialib=require('dbus-js/media.js');
 var app_config = require('./app_config.json');
 var dbus_obj = new dbus_app();
 var media = new medialib(dbus_obj);

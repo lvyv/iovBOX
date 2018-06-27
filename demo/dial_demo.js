@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var dbus_app = require('../dbus/dbus_app.js');
-var diallib=require('../dbus/dial.js');
+var dbus_app = require('dbus-js/dbus_app.js');
+var diallib=require('dbus-js/dial.js');
 var dbus_obj = new dbus_app();
 var dial = new diallib(dbus_obj);
 
