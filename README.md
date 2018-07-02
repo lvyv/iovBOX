@@ -5,8 +5,8 @@ iovBOX软件构架如下图，iovBOX支持JavaScript应用程序基于DBUS服务
 开发工具使用Visual Studio Code，有完整的插件支持，同时也支持远程调试iovBOX应用程序的JavaScript代码。
 
 文件夹描述
-demo：示例代码，目前提供了视频/gps/gpio/蓝牙/CAN/485/等等iovBOX支持的硬件调用示例。
-dbus：iovBOX的dbus服务的JS接口，根据iovBOX以及应用的要求更新。
-doc：开发接口，开发手册，调试方式等等文档。
-src：开发中的iovSRV代码。
-test：测试用例。
+  demo：示例代码，目前提供了视频/gps/gpio/蓝牙/CAN/485/等等iovBOX支持的硬件调用示例。
+  dbus：iovBOX的dbus服务的JS接口，根据iovBOX以及应用的要求更新。
+  doc：开发接口，开发手册，调试方式等等文档。
+  src：开发中的iovSRV代码。
+  test：测试用例。
