@@ -50,7 +50,7 @@ adc.prototype.onADCReport= function(outputCallBack){
          * double：AD0 
          * double：AD1
          * ]
-         * 输入数据分别：ACx,ACy,ACz,ANx,ANy,ANz 6个数据
+         * 输入数据分别：AD0 AD1 2个数据
          */
         var event = {
             adc_info:{}
