@@ -6,7 +6,7 @@ let host_config_ = rmt1.initConfigSync(fs_, "ssh2.cfg");
 //let cmd_kill = "killall -9 node";
 //let cmd_cd = "cd /home/lvyu/iovBOX";
 let cmd_node = "cd ~/iovBOX\nkillall -9 node\nnode --inspect=192.168.75.130:9229 broker.js\n";
-
+//let cmd_node = "cd ~/iovBOX\nkillall -9 node\nls .\n";
 const promise = Promise.resolve('start');
 promise
     .then(result => { return rmt1.connect(host_config_); })

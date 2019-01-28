@@ -15,15 +15,15 @@ $(function () {
 
 
 	var socket = io.connect(); //wssvr.val()
-    var uploader = new SocketIOFileUpload(socket);
-	$('#siofu_input').val();
-    uploader.listenOnInput(document.getElementById("siofu_input"));
-    uploader.addEventListener("complete", function(data) {
-		console.log(data.file.name);
-		_ET_GLOBAL.UPLOAD_FILENAME = data.file.name;
+    //var uploader = new SocketIOFileUpload(socket);
+	//$('#siofu_input').val();
+    //uploader.listenOnInput(document.getElementById("siofu_input"));
+    // uploader.addEventListener("complete", function(data) {
+	// 	console.log(data.file.name);
+	// 	_ET_GLOBAL.UPLOAD_FILENAME = data.file.name;
 		
-		//$('#siofu_input').val(data.file.name);
-	});
+	// 	//$('#siofu_input').val(data.file.name);
+	// });
 
 	
 	//通过“回车”提交控制信道命令

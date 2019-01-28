@@ -27,14 +27,20 @@
             "port": 9229,
             "sourceMaps": false,
             "restart": true,
-            "localRoot": "${workspaceFolder}",
-            "remoteRoot": "/home/lvyu/node-6.11.3/"
+            //"localRoot": "${workspaceFolder}",
+            "remoteRoot": "/home/lvyu/iovBOX/"
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "启动程序",
+            "name": "上传程序",
             "program": "${workspaceFolder}/example/uploadFiles.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name":"运程启动",
+            "program": "${workspaceFolder}/example/remoteDebug.js"
         }
     ]
 }

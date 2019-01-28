@@ -88,7 +88,8 @@ io.on('connection', function(socket) {
     };
     var local_port = socket.request.connection.localPort;
     //console.log(local_port);
-
+    socket.emit('data','welcome');
+    console.log('connection income!');
     // 对ctrl channel事件的监听
     socket.on(_ET_GLOBAL.CTL_CHANNEL_IN, function(data) {
         // 发送反馈
@@ -143,9 +144,9 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         console.log(client.name + ' Disconnect.');
     });
-    var uploader = new siofu();
-    uploader.dir = "./jsstartup";
-    uploader.listen(socket);
+    // var uploader = new siofu();
+    // uploader.dir = "./jsstartup";
+    // uploader.listen(socket);
 });
 
 

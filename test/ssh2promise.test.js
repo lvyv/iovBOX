@@ -4,8 +4,16 @@ let ssh2_ = require("../src/ssh2promise").SSH2UTILS;
 let fs_ = require("fs");
 let path_ = require("path");
 
-['log','warn','error'].forEach(a=>{let b=console[a];console[a]=(...c)=>{try{throw new Error}catch(d){b.apply(console,[d.stack.split('\n')[2].trim().substring(3).replace(__dirname,'').replace(/\s\(./,' at ').replace(/\)/,''),'\n',...c])}}});
-console.log("hllo");
+// ['log', 'warn', 'error'].forEach(a => { let b = console[a]; console[a] = (...c) => { try { throw new Error } catch (d) { b.apply(console, [d.stack.split('\n')[2].trim().substring(3).replace(__dirname, '').replace(/\s\(./, ' at ').replace(/\)/, ''), '\n', ...c]) } } });
+// console.log("hello,log");
+// console.warn("hello,warn.");
+// console.error("hello,error.");
+let io_ = require('socket.io-client');
+let socket_ = io_.connect("http://192.168.75.130:1123");
+socket_.on('data', function(data) {
+  console.log(data);  
+});
+
 
 function shouldRejected(promise) {
   return {
