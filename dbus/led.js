@@ -1,108 +1,120 @@
-//AMD define(led_dbus,[], () => {
-    var dbus = require('dbus-native');
-    //var conn = dbus.createConnection();
-    const systemBus = dbus.systemBus();
-    const serviceName = 'et.e52x.main';
-    const led_dbus_name = 'et.e52x.led';
-    const led_dbus_path= '/' + led_dbus_name.replace(/\./g, '/');
-    //const signame ='warn_info';
-    var dbus_conf_json={
-            'path': '/et/e52x/led',
-            'destination': 'et.e52x.led',
-            'interface': 'et.e52x.led',
-            'member': 'debug_level',
-            'signature': 'u',
-            'body': [6],
-            'type': dbus.messageType.methodCall
+module.exports = led;
+
+function led(dbus_app) {
+    var self = this;
+    self.dbus = dbus_app;
+    self.led_dbus_name = 'et.e52x.led';
+    self.led_dbus_path= '/' + self.led_dbus_name.replace(/\./g, '/');
+    self.dbus_conf_json={
+        'path': '/et/e52x/led',
+        'destination': 'et.e52x.led',
+        'interface': 'et.e52x.led',
+        'member': 'debug_level',
+        'signature': 'u',
+        'body': [6],
+        'type': self.dbus.dbus.messageType.methodCall
     };
-          
-    /**
-     * request service and register signal.
-     * init proc. 
-     * @param {string} value service name
-     * @returns {Promise} keep sync and insure init proc runned before other interfaces.
-     */
-    function requestService(value)
-    {
-        var proc = new Promise((resolve, reject) => {
-            systemBus.requestName(value, 0x4, (e, retCode) => {
-            // Return code 0x1 means we successfully had the name
-                if(retCode === 1) {
-                    //systemBus.addMatch('type=\'signal\', member=\'' + signame + '\'', (err, value) => {
-                    resolve("init led ok!");
-                    //});
-                }else{
-                    reject(e);
-                }
-            });
-        })
-        return proc;
-    }
-    
-    var proc = requestService(serviceName);
-    
-    
-    /**
-     * set certain led to certain color 
-     * 
-     * @param {uint} ledid 
-     * @param {string} color 
-     * @param {function} outputCallBack 
-     * @returns 
-     */
-    function setColor(ledid, color, outputCallBack)
-    {
-        proc.then(()=>{
-            if(dbus_conf_json.body.length==1)
+    self.addMatchLed = function(resolve,reject){
+        resolve("init led ok!");
+    };
+    self.dbus.listener_fun_array.push(self.addMatchLed);
+    self.proc = self.dbus.proc;
+}
+
+/**
+ * set certain led to certain color
+ * @param {uint} ledid   1~4
+ * @param {string} color "red black blue cyan orange red white pink green"
+ * @param {function} outputCallBack
+ * @returns
+ */
+led.prototype.setColor = function (ledid, color, outputCallBack){
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member'] = 'setone';
+        self.dbus_conf_json['signature'] = 'us';
+        self.dbus_conf_json['body']= [ledid,color];
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
+            if(err)
             {
-                dbus_conf_json.body.splice(1,0,0);
-            }
-
-            dbus_conf_json['member'] = 'setone';
-            dbus_conf_json['signature'] = 'us';
-            dbus_conf_json['body'][0]= ledid;  
-            dbus_conf_json['body'][1]= color;  
-            systemBus.invoke(dbus_conf_json, (err, res) => {
-                if(err)
-                {
-                    throw new Error(`set led${ledid} "${color}" error !`);
-                }else{
-                    outputCallBack(res);
+                var event = {
+                    code:-1,
+                    message:'set color error!',
+                    id:ledid,
+                    color:color,
+                    result:err
+                };
+                outputCallBack(event);
+            }else{
+                var event = {
+                    code:0,
+                    message:'set color success!',
+                    id:ledid,
+                    color:color,
+                    result:res
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set color fail!';
                 }
-            });
-        });
-        return;
-    }
-
-
-    /**
-     * set debug level with 0~7 
-     * 
-     * @param {uint} level  debug level 0~7
-     * @param {function} outputCallBack 
-     * @returns 
-     */
-    function setDebugLevel(level, outputCallBack)
-    {
-        proc.then(()=>{
-            if(dbus_conf_json.body.length==2)
-            {
-                dbus_conf_json.body.splice(1,1);
+                outputCallBack(event);
             }
-            dbus_conf_json['member'] = 'debug_level';
-            dbus_conf_json['signature'] = 'u';
-            dbus_conf_json['body'][0]= level;  
-            systemBus.invoke(dbus_conf_json, (err, res) => {
-                if(err)
-                {
-                    throw new Error(`set debug level "${level}" error!`);
-                }else{
-                    outputCallBack(res);
-                }
-            });
         });
-        return;
-    }
-    
-    module.exports.setDebugLevel = setDebugLevel;
-    module.exports.setColor = setColor;
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'set color exceptions!',
+            id:ledid,
+            color:color,
+            result:res
+        };
+        outputCallBack(event);
+    });
+};
+
+/**
+ * set debug level with 0~7
+ * @param {uint} level  debug level 0~7
+ * @param {function} outputCallBack
+ * @returns
+ */
+led.prototype.setDebugLevel = function (level, outputCallBack){
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member'] = 'debug_level';
+        self.dbus_conf_json['signature'] = 'u';
+        self.dbus_conf_json['body']= [level];
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
+            if(err){
+                var event = {
+                    code:-1,
+                    message:'set debug level error !',
+                    level:level,
+                    result:err
+                };
+                outputCallBack(event);
+            }
+            else{
+                var event = {
+                    code:0,
+                    message:'set debug level success!',
+                    level:level,
+                    result:res
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!';
+                }
+                outputCallBack(event);
+            }
+        });
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'set debug level exceptions!',
+            level:level,
+            result:res
+        };
+        outputCallBack(event);
+    });
+};

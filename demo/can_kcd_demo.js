@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 //申请socketcan实例
 var vcan=require('socketcan'); 
 

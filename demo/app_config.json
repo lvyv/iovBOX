@@ -1,0 +1,34 @@
+{
+  "camera" : {
+    "cam_info":[
+      {
+        "name":"前面",
+        "record_url":"rtsp://admin:e529xmedia@192.168.199.83/Streaming/Channels/101",
+        "record_path":"/media/mmcblk0p1",
+        "record_cycle":10,
+        "cycle":1
+      },
+      {
+        "name":"后面",
+        "record_url":"rtsp://admin:e529xmedia@192.168.199.83/Streaming/Channels/103",
+        "record_path":"/media/mmcblk0p1",
+        "record_cycle":10,
+        "cycle":1
+      },
+      {
+        "name":"左面",
+        "record_url":"rtsp://admin:e529xmedia@10.10.100.50/Streaming/Channels/101",
+        "record_path":"/media/mmcblk0p1",
+        "record_cycle":10,
+        "cycle":1
+      },
+      {
+        "name":"右面",
+        "record_url":"rtsp://admin:e529xmedia@10.10.100.50/Streaming/Channels/103",
+        "record_path":"/media/mmcblk0p1",
+        "record_cycle":10,
+        "cycle":1
+      }
+    ]
+  }
+}

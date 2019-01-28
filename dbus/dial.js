@@ -1,131 +1,190 @@
-//AMD define(dial_dbus,[], () => {
-var dbus = require('dbus-native');
-//var conn = dbus.createConnection();
-const systemBus = dbus.systemBus();
-const serviceName = 'et.e52x.main';
-const dial_dbus_name = 'et.e52x.ppp';
-const dial_dbus_path= '/' + dial_dbus_name.replace(/\./g, '/');
-var dbus_conf_json={
-		'path': '/et/e52x/ppp',
-		'destination': 'et.e52x.ppp',
-		'interface': 'et.e52x.ppp',
-		'member': 'debug_level',
-		'signature': 'u',
-		'body': [0],
-		'type': dbus.messageType.methodCall
+module.exports = dial;
+module.exports.Dial_State = Dial_State;
+
+var Dial_State = {
+    1:"dial init",
+    2:"dial start",
+    3:"dial running",
+    4:"dial stopping",
+    5:"dial stopped",
+    6:"dial none"
 };
 
-var dbus_out_json={
-		'path': '/et/e52x/ppp',
-		'destination': 'et.e52x.ppp',
-		'interface': 'et.e52x.ppp',
-		'member': 'info',
-		'type': dbus.messageType.methodCall
-};
+function dial(dbus_app) {
+	var self = this;
+	self.dbus = dbus_app;
+    self.dial_dbus_name = 'et.e52x.ppp';
+    self.dial_dbus_path= '/' + self.dial_dbus_name.replace(/\./g, '/');
+    self.dbus_conf_json={
+        'path': '/et/e52x/ppp',
+        'destination': 'et.e52x.ppp',
+        'interface': 'et.e52x.ppp',
+        'member': 'debug_level',
+        'signature': 'u',
+        'body': [0],
+        'type': self.dbus.dbus.messageType.methodCall
+    };
 
-/**
- * request dbus main service.
- * register signals after main service requested.
- * 
- * @param {string} value  service name default as  et.e52x.main
- * @returns {Promise}  to keep sync and confirm request service runned before other interfaces.
- */
-function requestService(value)
-{
-	var proc = new Promise((resolve, reject) => {
-		systemBus.requestName(value, 0x4, (e, retCode) => {
-		// Return code 0x1 means we successfully had the name
-			if(retCode === 1) {
-                var regsigs = 0;
-				systemBus.addMatch('type=\'signal\', member=\'signal\'', (err, value) => {
-						if(err) {
-							reject(err);
-						}
-						else{
-                            regsigs++;
-                            if(regsigs>=3)
-                            {
-                                resolve(value);
-                            }
-						}
-                });
-                systemBus.addMatch('type=\'signal\', member=\'simstat\'', (err, value) => {
-						if(err) {
-							reject(err);
-						}
-						else{
-                            regsigs++;
-                            if(regsigs>=3)
-                            {
-                                resolve(value);
-                            }
-						}
-                });
-                systemBus.addMatch('type=\'signal\', member=\'state\'', (err, value) => {
-					if(err) {
-						reject(err);
-					}
-					else{
-                        regsigs++;
-                        if(regsigs>=3)
-                        {
-                            resolve(value);
-                        }
-					}
-                });
-			}else{
-				reject(e);
-			}
-		});
-	})
-	return proc;
+    self.dbus_out_json = {
+        'path': '/et/e52x/ppp',
+        'destination': 'et.e52x.ppp',
+        'interface': 'et.e52x.ppp',
+        'member': 'info',
+        'type': self.dbus.dbus.messageType.methodCall
+    };
+
+    self.addMatchSignal = function (resolve, reject) {
+        self.dbus.systemBus.addMatch('type=\'signal\', member=\'signal\'', function(err, value) {
+            try {
+                if(err) {
+                    reject(err);
+                }
+                else{
+                    resolve(value);
+                }
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+
+    self.addMatchSimstat = function (resolve, reject) {
+        self.dbus.systemBus.addMatch('type=\'signal\', member=\'simstat\'', function(err, value) {
+            try {
+                if(err) {
+                    reject(err);
+                }
+                else{
+                    resolve(value);
+                }
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+
+    self.addMatchState = function (resolve, reject) {
+        self.dbus.systemBus.addMatch('type=\'signal\', member=\'state\'', function(err, value) {
+            try {
+                if(err) {
+                    reject(err);
+                }
+                else{
+                    resolve(value);
+                }
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+
+    self.addMatchNetwork = function (resolve, reject) {
+        self.dbus.systemBus.addMatch('type=\'signal\', member=\'network\'', function(err, value) {
+            try {
+                if(err) {
+                    reject(err);
+                }
+                else{
+                    resolve(value);
+                }
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+    self.dbus.listener_fun_array.push(self.addMatchSignal);
+    self.dbus.listener_fun_array.push(self.addMatchSimstat);
+    self.dbus.listener_fun_array.push(self.addMatchState);
+    self.dbus.listener_fun_array.push(self.addMatchNetwork);
+    self.proc = self.dbus.proc;
 }
-
-var proc = requestService(serviceName);
 
 /**
  * callback while dial state changed.  
  * 
  * @param {function} inputCallBack 
  */
-function onStateChange(inputCallBack)
-{
+dial.prototype.onStateChange = function (inputCallBack) {
+    var self = this;
     var signame = 'state';
-    var signalFullName = systemBus.mangle(dial_dbus_path, dial_dbus_name, signame);
-	systemBus.signals.on(signalFullName, (messageBody) => {
-		return inputCallBack(messageBody);
+    var signalFullName = self.dbus.systemBus.mangle(self.dial_dbus_path, self.dial_dbus_name, signame);
+    self.dbus.systemBus.signals.on(signalFullName, function(messageBody) {
+        /**
+         * messageBody[0]
+         * 0x01:ST_TTY_DIAL_INIT
+         * 0x02:ST_TTY_DIAL_START
+         * 0x03:ST_TTY_DIAL_RUNNING
+         * 0x04:ST_TTY_DIAL_STOPPING
+         * 0x05:ST_TTY_DIAL_STOPPED
+         * 0x06:ST_TTY_DIAL_NONE
+         */
+		return inputCallBack(Dial_State[messageBody[0]]);
 	});
-}
+};
 
 /**
  * callback while dial signal changed. 
  * 
  * @param {function} inputCallBack 
  */
-function onSignalChange(inputCallBack)
-{
+dial.prototype.onSignalChange = function (inputCallBack) {
+    var self = this;
     var signame = 'signal';
-    var signalFullName = systemBus.mangle(dial_dbus_path, dial_dbus_name, signame);
-	systemBus.signals.on(signalFullName, (messageBody) => {
-		return inputCallBack(messageBody);
+    var signalFullName = self.dbus.systemBus.mangle(self.dial_dbus_path, self.dial_dbus_name, signame);
+    self.dbus.systemBus.signals.on(signalFullName, function(messageBody) {
+        /**
+         * messageBody[0]: true or false
+         * false：无信号
+         * true： 信号正常
+         */
+        var signal = '';
+        if (messageBody[0] == false){
+            signal = 'no signal';
+        }
+        else if (messageBody[0] == true){
+            signal = 'normal signal';
+        }
+		return inputCallBack(signal);
 	});
-}
+};
 
 /**
  * callback while sim card state changed. 
  * 
  * @param {function} inputCallBack 
  */
-function onSimStateChange(inputCallBack)
-{
+dial.prototype.onSimStateChange = function (inputCallBack) {
+    var self = this;
     var signame = 'simstat';
-    var signalFullName = systemBus.mangle(dial_dbus_path, dial_dbus_name, signame);
-	systemBus.signals.on(signalFullName, (messageBody) => {
+    var signalFullName = self.dbus.systemBus.mangle(self.dial_dbus_path, self.dial_dbus_name, signame);
+    self.dbus.systemBus.signals.on(signalFullName, function(messageBody) {
+        console.log(messageBody);
 		return inputCallBack(messageBody);
 	});
-}
+};
 
-
+/**
+ * callback while network changed.
+ *
+ * @param {function} inputCallBack
+ */
+dial.prototype.onNetworkChange = function (inputCallBack) {
+    var self = this;
+    var signame = 'network';
+    var signalFullName = self.dbus.systemBus.mangle(self.dial_dbus_path, self.dial_dbus_name, signame);
+    self.dbus.systemBus.signals.on(signalFullName, function(messageBody) {
+        var event = {
+            dial_info:{}
+        };
+        event.dial_info.operator_identification = messageBody[0][0];
+        event.dial_info.rssi = messageBody[0][1];
+        event.dial_info.base_station_stat = messageBody[0][2][0];
+        event.dial_info.cell_id = messageBody[0][2][1];
+        event.dial_info.base_station_id = messageBody[0][2][2];
+        event.dial_info.reason = messageBody[0][2][3];
+        return inputCallBack(event);
+    });
+};
 
 /**
  * send msg to phone by 4g dial, callback when finished.
@@ -135,28 +194,49 @@ function onSimStateChange(inputCallBack)
  * @param {function} outputCallBack 
  * @returns 
  */
-function sendMessage(phone, msg, outputCallBack)
-{
-	proc.then(()=>{
-        if(dbus_conf_json.body.length==1)
-        {
-            dbus_conf_json.body.splice(0,0,0);
-        }
-        dbus_conf_json['member'] = 'send';
-        dbus_conf_json['signature'] = 'ss';
-		dbus_conf_json['body'][0]= phone;
-		dbus_conf_json['body'][1]= msg;
-		systemBus.invoke(dbus_conf_json, (err, res) => {
+dial.prototype.sendMessage = function (phone, msg, outputCallBack) {
+    var self = this;
+    self.proc.then( function (){
+        self.dbus_conf_json['member'] = 'send';
+        self.dbus_conf_json['signature'] = 'ss';
+        self.dbus_conf_json['body']= [phone,msg];
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
 			if(err)
 			{
-				throw new Error(`send ${content} to ${phone} error!`);
+                var event = {
+                    code:-1,
+                    message:'send message error!',
+                    phone:phone,
+                    content:msg,
+                    result:err
+                };
+                outputCallBack(event);
 			}else{
-				outputCallBack(res);
+                var event = {
+                    code:0,
+                    message:'send message success!',
+                    phone:phone,
+                    content:msg,
+                    result:res
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'send message fail!'
+                }
+                outputCallBack(event);
 			}
 		});
-	});
-	return;
-}
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'send message exception!',
+            phone:phone,
+            content:msg,
+            result:res
+        };
+        outputCallBack(event);
+    });
+};
 
 
 /**
@@ -164,19 +244,53 @@ function sendMessage(phone, msg, outputCallBack)
  * 
  * @param {function} outputCallBack 
  */
-function getInfo(outputCallBack)
-{
-	proc.then(()=>{
-		dbus_out_json['member']='info';
-		systemBus.invoke(dbus_out_json, (err, res) => {
+dial.prototype.getInfo = function (outputCallBack) {
+    var self = this;
+    self.proc.then( function(){
+        self.dbus_out_json['member']='info';
+        self.dbus.systemBus.invoke(self.dbus_out_json, function(err, messageBody) {
 			if(err)
 			{
-				throw new Error(`get dial info error!`);
+                var event = {
+                    code:-1,
+                    message:'get sim card info error!',
+                    result:err
+                };
+                outputCallBack(event);
 			}else{
 				//do something
-				outputCallBack(res);
+                var event = {
+                    code:0,
+                    message:'get sim card info success!',
+                    dial_info:{}
+                };
+                if(messageBody != false){
+                    event.dial_info.ccid = messageBody[0];
+                    event.dial_info.cimi = messageBody[1];
+                    event.dial_info.phone_number = messageBody[2];
+                    event.dial_info.network_identity = messageBody[3];
+                    event.dial_info.operator_identification = messageBody[4];
+                    event.dial_info.rssi = messageBody[5];
+                    event.dial_info.base_station_stat = messageBody[6][0];
+                    event.dial_info.cell_id = messageBody[6][1];
+                    event.dial_info.base_station_id = messageBody[6][2];
+                    event.dial_info.reason = messageBody[6][3];
+                }
+                else {
+                    event.code = -1;
+                    event.message = 'get sim card info fail!'
+                }
+                outputCallBack(event);
 			}
 		});
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'get sim card exception!',
+            type:type,
+            result:res
+        };
+        outputCallBack(event);
 	});
 }
 
@@ -186,21 +300,46 @@ function getInfo(outputCallBack)
  * @param {function} outputCallBack 
  * @returns 
  */
-function getList(outputCallBack)
-{
-    proc.then(()=>{
-		dbus_out_json['member']='list';
-       systemBus.invoke(dbus_out_json, (err, res) => {
+dial.prototype.getMessageList = function(status,outputCallBack) {
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member']='list';
+        self.dbus_conf_json['signature'] = 'u';
+        self.dbus_conf_json['body']= [status];
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
             if(err)
             {
-                throw new Error(`get msg list error !`);
+                var event = {
+                    code:-1,
+                    message:'get msg list error!',
+                    status:status,
+                    result:err
+                };
+                outputCallBack(event);
             }else{
-                outputCallBack(res);
+                var event = {
+                    code:0,
+                    message:'get msg list success!',
+                    status:status,
+                    result:res
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'get msg list fail!'
+                }
+                outputCallBack(event);
             }
         });
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'get msg list exception!',
+            status:status,
+            result:res
+        };
+        outputCallBack(event);
     });
-    return;
-}
+};
 
 /**
  * delete msg while msgtype and msgid matched.
@@ -211,28 +350,49 @@ function getList(outputCallBack)
  * @param {function} outputCallBack 
  * @returns 
  */
-function delMessage(msgid, msgtype,outputCallBack)
-{
-    proc.then(()=>{
-        if(dbus_conf_json.body.length==1)
-        {
-            dbus_conf_json.body.splice(0,0,0);
-        }
-        dbus_conf_json['member'] = 'delete';
-        dbus_conf_json['signature'] = 'uu';
-		dbus_conf_json['body'][0]= msgid;
-		dbus_conf_json['body'][1]= msgtype;
-		systemBus.invoke(dbus_conf_json, (err, res) => {
+dial.prototype.deleteMessage = function(msgid, msgtype,outputCallBack) {
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member'] = 'delete';
+        self.dbus_conf_json['signature'] = 'uu';
+        self.dbus_conf_json['body']= [msgid, msgtype];
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
 			if(err)
 			{
-				throw new Error(`send ${content} to ${phone} error!`);
+                var event = {
+                    code:-1,
+                    message:'delete message error!',
+                    type:msgtype,
+                    id:msgid,
+                    result:err
+                };
+                outputCallBack(event);
 			}else{
-				outputCallBack(res);
+                var event = {
+                    code:0,
+                    message:'delete message success!',
+                    type:msgtype,
+                    id:msgid,
+                    result:res
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'delete message fail!'
+                }
+                outputCallBack(event);
 			}
 		});
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'delete message exception!',
+            type:msgtype,
+            id:msgid,
+            result:res
+        };
+        outputCallBack(event);
 	});
-    return;
-}
+};
 
 
 
@@ -243,39 +403,94 @@ function delMessage(msgid, msgtype,outputCallBack)
  * @param {function} outputCallBack 
  * @returns 
  */
-function setDebugLevel(level, outputCallBack)
-{
-    proc.then(()=>{
-        if(dbus_conf_json.body.length==2)
-        {
-            dbus_conf_json.body.splice(1,1);
-        }
-        dbus_conf_json['member'] = 'debug_level';
-        dbus_conf_json['signature'] = 'u';
-        dbus_conf_json['body'][0]= level;  
-        systemBus.invoke(dbus_conf_json, (err, res) => {
-            if(err)
-            {
-                throw new Error(`set debug level "${level}" error !`);
-            }else{
-                outputCallBack(res);
+dial.prototype.setDebugLevel = function(level, outputCallBack) {
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member'] = 'debug_level';
+        self.dbus_conf_json['signature'] = 'u';
+        self.dbus_conf_json['body']= [level];
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
+            if(err){
+                var event = {
+                    code:-1,
+                    message:'set debug level error !',
+                    level:level,
+                    result:err
+                };
+                outputCallBack(event);
+            }
+            else{
+                var event = {
+                    code:0,
+                    message:'set debug level success!',
+                    level:level,
+                    result:res
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!'
+                }
+                outputCallBack(event);
             }
         });
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'set debug level exceptions!',
+            level:level,
+            result:res
+        };
+        outputCallBack(event);
     });
-    return;
-}
+};
 
-
-
-
-
-
-module.exports.onSignalChange = onSignalChange;
-module.exports.onSimStateChange = onSimStateChange;
-module.exports.onStateChange = onStateChange;
-module.exports.getInfo = getInfo;
-module.exports.getList = getList;
-module.exports.delMessage = delMessage;
-module.exports.sendMessage = sendMessage;
-
-//});
+/**
+ * 获取版本号
+ *
+ * @param {function} outputCallBack
+ */
+dial.prototype.getHWInfo= function (outputCallBack)
+{
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member'] = 'hwinfo';
+        self.dbus_conf_json['signature'] = null;
+        self.dbus_conf_json['body']= null;
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
+            if(err)
+            {
+                var event = {
+                    code:-1,
+                    message:'get HWInfo error!',
+                    result:err
+                };
+                outputCallBack(event);
+            }else{
+                var hwinfo = res.toString().split(',');
+                var hwinfo_json= {
+                    manufacturer:hwinfo[0],
+                    model:hwinfo[1],
+                    version:hwinfo[2],
+                    imei:hwinfo[3],
+                };
+                var event = {
+                    code:0,
+                    message:'get HWInfo success!',
+                    result: hwinfo_json
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'get HWInfo fail!';
+                }
+                outputCallBack(event);
+            }
+        });
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'get HWInfo exceptions!',
+            result:res
+        };
+        outputCallBack(event);
+    });
+};

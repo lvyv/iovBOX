@@ -1,187 +1,234 @@
-//AMD define(imu_dbus,[], () => {
-    var dbus = require('dbus-native');
-    //var conn = dbus.createConnection();
-    const systemBus = dbus.systemBus();
-    const serviceName = 'et.e52x.main';
-    const power_dbus_name = 'et.e52x.power';
-    const power_dbus_path= '/' + power_dbus_name.replace(/\./g, '/');
-    //const signame ='warn_info';
-    var dbus_conf_json={
-            'path': '/et/e52x/power',
-            'destination': 'et.e52x.power',
-            'interface': 'et.e52x.power',
-            'member': 'set_data',
-            'signature': 'ii',
-            'body': [0,2.5],
-            'type': dbus.messageType.methodCall
-    };
-    var dbus_out_json={
-            'path': '/et/e52x/power',
-            'destination': 'et.e52x.power',
-            'interface': 'et.e52x.power',
-            'member': 'get_data',
-            'type': dbus.messageType.methodCall
-    };
+module.exports = power;
 
-       
-    /**
-     * request service and register signal.
-     * init proc. 
-     * 
-     * @param {string} value  service name
-     * @returns {Promise} keep sync and insure init proc runned before other interfaces.
-     */
-    function requestService(value)
-    {
-        var proc = new Promise((resolve, reject) => {
-            systemBus.requestName(value, 0x4, (e, retCode) => {
-            // Return code 0x1 means we successfully had the name
-                if(retCode === 1) {
-                    //systemBus.addMatch('type=\'signal\', member=\'' + signame + '\'', (err, value) => {
-                    resolve("init power ok!");
-                    //});
-                }else{
-                    reject(e);
-                }
-            });
-        })
-        return proc;
-    }
-    
-    var proc = requestService(serviceName);
-    
-    /**
-     * get warning info for certain type
-     * 0~8 
-     * @param {uint} type 
-     * @param {any} outputCallBack 
-     * @returns 
-     */
-    function getWarnInfo(type, outputCallBack)
-    {
-        proc.then(()=>{
-            dbus_conf_json['member'] = 'warn_info';
-            if(dbus_conf_json.body.length==2)
-            {
-                dbus_conf_json.body.splice(1,1);
-            }
-            dbus_conf_json['signature'] = 'i';
-            dbus_conf_json['body'][0] = type;
-            systemBus.invoke(dbus_conf_json, (err, res) => {
-                if(err)
-                {
-                    throw new Error(`get ${type} warn info wrong!`);
-                }else{
-                    outputCallBack(res);
-                }
-            });
-        });
-        return;
-    }
-    
-    /**
-     * get certain info about power manage. call back after success.
-     * 0x00 tempreture;  0x01 main voltage; 0x02 back voltage;
-     * 0x04 main voltage less; 0x20 work mode; 0x21 acc state;
-     * 0x22 main sleep period ; 0x23 back sleep period.
-     * 
-     * @param {uint} type  
-     * @param {function} outputCallBack 
-     */
-    function getData(type, outputCallBack)
-    {
-        proc.then(()=>{
-            if(dbus_conf_json.body.length==2)
-            {
-                dbus_conf_json.body.splice(1,1);
-            }
-            dbus_conf_json['member'] = 'get_data';
-            dbus_conf_json['signature'] = 'i';
-            dbus_conf_json['body'][0] = type;
-            systemBus.invoke(dbus_conf_json, (err, res) => {
-                if(err)
-                {
-                    throw new Error(`get power ${type} data wrong!`);
-                }else{
-                    outputCallBack(res);
-                }
-            });
-        });
-    }
-   
-    /**
-     * set power parameter data to manage power.
-     * type 
-     * 0x00 work mode; int
-     * 0x01 main sleep period. int
-     * 0x02 back sleep period. int
-     * 0x21 main less voltage. double
-     * 
-     * @param {int} type 
-     * @param {double} data 
-     * @param {function} outputCallBack 
-     * @returns 
-     */
-    function setData(type, data, outputCallBack)
-    {
-        proc.then(()=>{
-            if(dbus_conf_json.body.length==1)
-            {
-                dbus_conf_json.body.splice(1,0,0);
-            }
+function power(dbus_app) {
+    var self = this;
+    self.dbus = dbus_app;
+    self.power_dbus_name = 'et.e52x.power';
+    self.power_dbus_path= '/' + self.power_dbus_name.replace(/\./g, '/');
+    self.signame ='warn_info';
+    self.warninfo = {
+        0:'MAIN_POWER_SLEEP',
+        1:'MAIN_POWER_VLOW',
+        2:'MAIN_POWER_OFF',
+        3:'BACK_POWER_VLOW',
+        4:'DEVICE_UNCOVER',
+        5:'DEVICE_ACC_ON',
+        32:'MAIN_POWER_NORMAL',
+        33:'MAIN_POWER_VHIGH',
+        34:'MAIN_POWER_ON',
+        35:'BACK_POWER_VHIGH',
+        36:'DEVICE_COVER',
+        37:'DEVICE_ACC_OFF',
+        64:'SD_CARD_REMOVE',
+        65:'MOBILE_NET_WAKEUP'
+     };
 
-            dbus_conf_json['member'] = 'set_data';
-            if(type > 0x1F)
+
+
+    self.dbus_conf_json={
+        'path': '/et/e52x/power',
+        'destination': 'et.e52x.power',
+        'interface': 'et.e52x.power',
+        'member': 'set_data',
+        'signature': 'ii',
+        'body': [0,2.5],
+        'type': self.dbus.dbus.messageType.methodCall
+    };
+    self.addMatchWarnInfo= function (resolve, reject) {
+        self.dbus.systemBus.addMatch('type=\'signal\', member=\''+ self.signame +'\'', function(err, value) {
+            try {
+                if(err) {
+                    reject(err);
+                }
+                else{
+                    resolve(value);
+                }
+            } catch(error) {
+                reject(error);
+            }
+        });
+    };
+    self.dbus.listener_fun_array.push(self.addMatchWarnInfo);
+    self.proc = self.dbus.proc;
+}
+
+
+power.prototype.onWarnInfo = function(outputCallBack){
+    var self = this;
+    var signalFullName = self.dbus.systemBus.mangle(self.power_dbus_path, self.power_dbus_name, self.signame);
+    self.dbus.systemBus.signals.on(signalFullName, function(messageBody) {
+        /**
+         * messageBody
+         * int32: tags index
+         */
+        var event = { warninfo : self.warninfo[messageBody[0]] };
+        
+        return outputCallBack(event);
+    });
+
+}
+
+
+/**
+ * get certain info about power manage. call back after success.
+ * 0x00 tempreture;  0x01 main voltage; 0x02 back voltage;
+ * 0x04 main voltage less; 0x20 work mode; 0x21 acc state;
+ * 0x22 main sleep period ; 0x23 back sleep period.
+ *
+ * @param {uint} type
+ * @param {function} outputCallBack
+ */
+power.prototype.getData = function(type, outputCallBack){
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member'] = 'get_data';
+        self.dbus_conf_json['signature'] = 'i';
+        self.dbus_conf_json['body'] = [type];
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res, data) {
+            if(err)
             {
-                dbus_conf_json['signature'] = 'id';
+                var event = {
+                    code:-1,
+                    message:'get data error!',
+                    type:type,
+                    result:err,
+                    data: null
+                };
+                outputCallBack(event);
             }else{
-                dbus_conf_json['signature'] = 'ii';
-            }
-            dbus_conf_json['body'][0]= type;  
-            dbus_conf_json['body'][1]= data;  
-            systemBus.invoke(dbus_conf_json, (err, res) => {
-                if(err)
-                {
-                    throw new Error(`set power ${type} with ${data} error!`);
-                }else{
-                    outputCallBack(res);
+                var event = {
+                    code:0,
+                    message:'get data success!',
+                    type:type,
+                    result:res,
+                    data: data
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'get data fail!';
                 }
-            });
+                outputCallBack(event);
+            }
         });
-        return;
-    }
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'get data exceptions!',
+            type:type,
+            result:res,
+            data: null
+        };
+        outputCallBack(event);
+    });
+};
 
-
-    /**
-     * set debug level 0~7
-     * 
-     * @param {uint} level  0~7
-     * @param {any} outputCallBack 
-     * @returns 
-     */
-    function setDebugLevel(level, outputCallBack)
-    {
-        proc.then(()=>{
-            if(dbus_conf_json.body.length==2)
+/**
+ * set power parameter data to manage power.
+ * type
+ * 0x00 work mode; int
+ * 0x01 main sleep period. int
+ * 0x02 back sleep period. int
+ * 0x21 main less voltage. double
+ *
+ * @param {int} type
+ * @param {double} data
+ * @param {function} outputCallBack
+ * @returns
+ */
+power.prototype.setData = function(type, data, outputCallBack){
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member'] = 'set_data';
+        if(type > 0x1F)
+        {
+            self.dbus_conf_json['signature'] = 'id';
+        }else{
+            self.dbus_conf_json['signature'] = 'ii';
+        }
+        self.dbus_conf_json['body']= [type,data];
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
+            if(err)
             {
-                dbus_conf_json.body.splice(1,1);
-            }
-            dbus_conf_json['member'] = 'debug_level';
-            dbus_conf_json['signature'] = 'u';
-            dbus_conf_json['body'][0]= level;  
-            systemBus.invoke(dbus_conf_json, (err, res) => {
-                if(err)
-                {
-                    throw new Error(`set power debug levet ${level} error !`);
-                }else{
-                    outputCallBack(res);
+                var event = {
+                    code:-1,
+                    message:'set data error!',
+                    type:type,
+                    data:data,
+                    result:err
+                };
+                outputCallBack(event);
+            }else{
+                var event = {
+                    code:0,
+                    message:'set data success!',
+                    type:type,
+                    data:data,
+                    result:res
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set data fail!';
                 }
-            });
+                outputCallBack(event);
+            }
         });
-        return;
-    }
-    
-    module.exports.setDebugLevel = setDebugLevel;
-    module.exports.setData = setData;
-    module.exports.getData = getData;
-    module.exports.getWarnInfo = getWarnInfo;
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'set data exceptions!',
+            type:type,
+            data:data,
+            result:res
+        };
+        outputCallBack(event);
+    });
+};
+
+
+/**
+ * set debug level 0~7
+ *
+ * @param {uint} level  0~7
+ * @param {function} outputCallBack
+ * @returns
+ */
+power.prototype.setDebugLevel = function (level, outputCallBack){
+    var self = this;
+    self.proc.then(function(){
+        self.dbus_conf_json['member'] = 'debug_level';
+        self.dbus_conf_json['signature'] = 'u';
+        self.dbus_conf_json['body']= [level];
+        self.dbus.systemBus.invoke(self.dbus_conf_json, function(err, res) {
+            if(err){
+                var event = {
+                    code:-1,
+                    message:'set debug level error !',
+                    level:level,
+                    result:err
+                };
+                outputCallBack(event);
+            }
+            else{
+                var event = {
+                    code:0,
+                    message:'set debug level success!',
+                    level:level,
+                    result:res
+                };
+                if (res == false){
+                    event.code = -1;
+                    event.message = 'set debug level fail!';
+                }
+                outputCallBack(event);
+            }
+        });
+    }).catch(function(res){
+        var event = {
+            code:-1,
+            message:'set debug level exceptions!',
+            level:level,
+            result:res
+        };
+        outputCallBack(event);
+    });
+};

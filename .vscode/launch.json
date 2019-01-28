@@ -22,13 +22,11 @@
         {
             "type": "node",
             "request": "attach",
-            "name": "192.168.75.130:9229",
-            "address": "192.168.75.130",
+            "name": "192.168.100.250:9229",
+            "address": "192.168.100.250",
             "port": 9229,
             "sourceMaps": false,
             "restart": true,
-            //"localRoot": "${workspaceFolder}",
-            "remoteRoot": "/home/lvyu/iovBOX/"
         },
         {
             "type": "node",
